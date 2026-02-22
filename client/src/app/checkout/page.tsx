@@ -58,6 +58,7 @@ export default function CheckoutPage() {
   const [deliveryFeeBase, setDeliveryFeeBase] = useState(40)
   const [gstPercent, setGstPercent] = useState(5)
   const [freeDeliveryAbove, setFreeDeliveryAbove] = useState(0)
+  const [isStoreOpen, setIsStoreOpen] = useState(true)
 
   // Coupon
   const [couponCode, setCouponCode] = useState("")
@@ -112,6 +113,7 @@ export default function CheckoutPage() {
         setDeliveryFeeBase(data.deliveryFee ?? 40)
         setGstPercent(data.gstPercent ?? 5)
         setFreeDeliveryAbove(data.freeDeliveryAbove ?? 0)
+        setIsStoreOpen(data.isStoreOpen ?? true)
       } catch { /* fallback to defaults */ }
     }
     fetchSettings()
@@ -193,6 +195,10 @@ export default function CheckoutPage() {
     if (!user) {
       toast.error("Please login to place an order")
       router.push("/login")
+      return
+    }
+    if (!isStoreOpen) {
+      toast.error("Store is currently closed")
       return
     }
     if (items.length === 0) {
@@ -504,10 +510,16 @@ export default function CheckoutPage() {
 
               <Button
                 type="submit"
-                disabled={isLoading || !otpVerified}
-                className="w-full h-12 text-base rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground glow-orange hover:glow-orange-strong disabled:opacity-50"
+                disabled={isLoading || !otpVerified || !isStoreOpen}
+                className={`w-full h-12 text-base rounded-xl transition-all ${
+                  !isStoreOpen 
+                    ? "bg-secondary text-muted-foreground" 
+                    : "bg-primary hover:bg-primary/90 text-primary-foreground glow-orange hover:glow-orange-strong"
+                }`}
               >
-                {isLoading ? (
+                {!isStoreOpen ? (
+                  <>Store Closed</>
+                ) : isLoading ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 ) : paymentMethod === "razorpay" ? (
                   <>Pay ₹{grandTotal}</>
@@ -516,7 +528,11 @@ export default function CheckoutPage() {
                 )}
               </Button>
 
-              {!otpVerified && (
+              {!isStoreOpen ? (
+                <p className="text-xs text-center text-destructive font-medium">
+                  We are not accepting orders at this time
+                </p>
+              ) : !otpVerified && (
                 <p className="text-xs text-center text-muted-foreground">
                   Please verify your mobile number to proceed
                 </p>

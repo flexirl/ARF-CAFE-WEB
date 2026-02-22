@@ -15,11 +15,30 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { StoreBanner } from "./store-banner"
+import api from "@/lib/api"
+import { useState, useEffect } from "react"
 
 export function Navbar() {
   const { user, logout } = useAuth()
   const { cartCount } = useCart()
   const isAdmin = user?.role === "admin"
+  
+  const [isStoreOpen, setIsStoreOpen] = useState(true)
+  const [storeOpensAt, setStoreOpensAt] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get("/settings")
+        setIsStoreOpen(data.isStoreOpen ?? true)
+        setStoreOpensAt(data.storeOpensAt ?? null)
+      } catch {
+        // Fallback or ignore
+      }
+    }
+    fetchSettings()
+  }, [])
 
   const navItems = isAdmin
     ? [
@@ -43,9 +62,11 @@ export function Navbar() {
       ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 glass">
-      <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
-        {/* Logo */}
+    <>
+      <StoreBanner isStoreOpen={isStoreOpen} storeOpensAt={storeOpensAt} />
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 glass">
+        <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
+          {/* Logo */}
         <Link href="/" className="flex items-center gap-2 mr-8">
           <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
             <ChefHat className="h-5 w-5 text-primary-foreground" />
@@ -159,5 +180,6 @@ export function Navbar() {
         </div>
       </div>
     </header>
+    </>
   )
 }

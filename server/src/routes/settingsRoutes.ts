@@ -20,14 +20,16 @@ router.get('/', async (_req: Request, res: Response) => {
 // PUT /api/settings — admin only
 router.put('/', protect, admin, async (req: Request, res: Response) => {
   try {
-    const { deliveryFee, gstPercent, freeDeliveryAbove } = req.body;
+    const { deliveryFee, gstPercent, freeDeliveryAbove, isStoreOpen, storeOpensAt } = req.body;
     let settings = await Settings.findOne();
     if (!settings) {
-      settings = await Settings.create({ deliveryFee, gstPercent, freeDeliveryAbove });
+      settings = await Settings.create({ deliveryFee, gstPercent, freeDeliveryAbove, isStoreOpen, storeOpensAt });
     } else {
       if (deliveryFee !== undefined) settings.deliveryFee = deliveryFee;
       if (gstPercent !== undefined) settings.gstPercent = gstPercent;
       if (freeDeliveryAbove !== undefined) settings.freeDeliveryAbove = freeDeliveryAbove;
+      if (isStoreOpen !== undefined) settings.isStoreOpen = isStoreOpen;
+      if (storeOpensAt !== undefined) settings.storeOpensAt = storeOpensAt;
       await settings.save();
     }
     res.json(settings);

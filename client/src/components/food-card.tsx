@@ -15,6 +15,7 @@ interface Food {
   category: string
   image: string
   rating: number
+  availability: boolean
   preparationTime?: number
 }
 
@@ -24,17 +25,26 @@ export function FoodCard({ food }: { food: Food }) {
   const isAdmin = user?.role === "admin"
 
   return (
-    <Card className="group overflow-hidden rounded-2xl bg-card border border-border hover:border-primary/30 transition-all duration-300 hover:glow-orange">
+    <Card className={`group overflow-hidden rounded-2xl bg-card border border-border transition-all duration-300 ${food.availability ? "hover:border-primary/30 hover:glow-orange" : "opacity-75 grayscale-[0.3]"}`}>
       {/* Image */}
       <div className="relative h-44 w-full overflow-hidden">
         <Image
           src={food.image}
           alt={food.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className={`object-cover transition-transform duration-500 ${food.availability ? "group-hover:scale-110" : ""}`}
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-card/90 to-transparent" />
+
+        {/* Out of Stock Overlay */}
+        {!food.availability && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px]">
+            <span className="bg-destructive/90 text-destructive-foreground px-4 py-1.5 rounded-full text-sm font-bold shadow-lg tracking-wide uppercase">
+              Out of Stock
+            </span>
+          </div>
+        )}
 
         {/* Rating badge */}
         <div className="absolute top-3 right-3 flex items-center gap-1 glass rounded-full px-2.5 py-1">
@@ -66,7 +76,12 @@ export function FoodCard({ food }: { food: Food }) {
         {!isAdmin && (
           <Button
             size="sm"
-            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-4 gap-1.5 transition-all active:scale-95"
+            disabled={!food.availability}
+            className={`rounded-xl h-9 px-4 gap-1.5 transition-all ${
+              food.availability 
+                ? "bg-primary hover:bg-primary/90 text-primary-foreground active:scale-95" 
+                : "bg-secondary text-muted-foreground w-full"
+            }`}
             onClick={() =>
               addToCart({
                 foodId: food._id,
@@ -77,7 +92,13 @@ export function FoodCard({ food }: { food: Food }) {
               })
             }
           >
-            <Plus className="w-4 h-4" /> Add
+            {food.availability ? (
+              <>
+                <Plus className="w-4 h-4" /> Add
+              </>
+            ) : (
+              "Unavailable"
+            )}
           </Button>
         )}
       </CardFooter>

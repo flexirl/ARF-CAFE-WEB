@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Cart from '../models/Cart';
 import Food from '../models/Food';
+import Settings from '../models/Settings';
 
 // @desc    Get user cart
 // @route   GET /api/cart
@@ -24,9 +25,18 @@ export const addToCart = async (req: Request, res: Response) => {
   const { foodId, quantity } = req.body;
 
   try {
+    const settings = await Settings.findOne();
+    if (settings && !settings.isStoreOpen) {
+      return res.status(400).json({ message: 'Store is currently closed' });
+    }
+
     const food = await Food.findById(foodId);
     if (!food) {
       return res.status(404).json({ message: 'Food not found' });
+    }
+
+    if (!food.availability) {
+      return res.status(400).json({ message: 'This item is currently out of stock' });
     }
 
     let cart = await Cart.findOne({ userId: req.user?._id as any });

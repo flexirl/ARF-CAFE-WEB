@@ -11,11 +11,14 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import api from "@/lib/api"
 import { AxiosError } from "axios"
+import { Separator } from "@/components/ui/separator"
 
 interface AppSettings {
   deliveryFee: number
   gstPercent: number
   freeDeliveryAbove: number
+  isStoreOpen: boolean
+  storeOpensAt: string | null
 }
 
 interface Coupon {
@@ -110,7 +113,7 @@ export default function AdminDashboard() {
   const [ordersLoading, setOrdersLoading] = useState(true)
 
   // Settings
-  const [appSettings, setAppSettings] = useState<AppSettings>({ deliveryFee: 40, gstPercent: 5, freeDeliveryAbove: 0 })
+  const [appSettings, setAppSettings] = useState<AppSettings>({ deliveryFee: 40, gstPercent: 5, freeDeliveryAbove: 0, isStoreOpen: true, storeOpensAt: null })
   const [settingsLoading, setSettingsLoading] = useState(false)
   const [settingsSaving, setSettingsSaving] = useState(false)
 
@@ -264,6 +267,18 @@ export default function AdminDashboard() {
       setStats(newStats)
     } catch {
       toast.error("Failed to delete food item")
+    }
+  }
+
+  const handleToggleFoodAvailability = async (id: string, currentAvailability: boolean) => {
+    try {
+      await api.put(`/foods/${id}`, { availability: !currentAvailability })
+      setFoods((prev) =>
+        prev.map((f) => (f._id === id ? { ...f, availability: !currentAvailability } : f))
+      )
+      toast.success(currentAvailability ? "Marked Out of Stock" : "Marked In Stock")
+    } catch {
+      toast.error("Failed to update availability")
     }
   }
 
@@ -604,13 +619,22 @@ export default function AdminDashboard() {
                   <div className="h-16 w-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
                     <img src={food.image} alt={food.name} className="h-full w-full object-cover" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-sm truncate">{food.name}</h4>
-                      <span className="text-xs px-2 py-0.5 rounded-lg bg-secondary text-muted-foreground">{food.category}</span>
-                      {!food.availability && (
-                        <span className="text-xs px-2 py-0.5 rounded-lg bg-destructive/10 text-destructive">Unavailable</span>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-lg truncate flex-1">{food.name}</h3>
+                          <button
+                            onClick={() => handleToggleFoodAvailability(food._id, food.availability)}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-colors ${
+                              food.availability
+                                ? "bg-green-500/10 text-green-400 hover:bg-green-500/20"
+                                : "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                            }`}
+                          >
+                            {food.availability ? "In Stock" : "Out of Stock"}
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1.5 bg-secondary px-2.5 py-1 rounded-lg text-primary font-medium border border-border">{food.category}</span>
                     </div>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">{food.description}</p>
                   </div>
@@ -756,14 +780,59 @@ export default function AdminDashboard() {
           </div>
 
           <Card className="bg-card border-border">
-            <CardContent className="pt-6 space-y-5">
+            <CardContent className="pt-6 space-y-6">
               {settingsLoading ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-3">
+                  {/* Store Status Section */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Store Status</h3>
+                    <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 rounded-xl bg-secondary/50 border border-border">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={appSettings.isStoreOpen}
+                              onChange={(e) => setAppSettings({ ...appSettings, isStoreOpen: e.target.checked })}
+                            />
+                            <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                          </label>
+                          <span className={`font-medium ${appSettings.isStoreOpen ? "text-green-400" : "text-destructive"}`}>
+                            {appSettings.isStoreOpen ? "Accepting Orders" : "Closed"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mr-4">
+                          {appSettings.isStoreOpen
+                            ? "Toggle to immediately stop accepting new orders across the platform."
+                            : "The store is currently closed. Users cannot place new orders."}
+                        </p>
+                      </div>
+
+                      {!appSettings.isStoreOpen && (
+                        <div className="shrink-0 space-y-2">
+                          <Label className="text-xs">Opening At (Optional Countdown)</Label>
+                          <Input
+                            type="datetime-local"
+                            value={appSettings.storeOpensAt ? new Date(appSettings.storeOpensAt).toISOString().slice(0, 16) : ""}
+                            onChange={(e) => setAppSettings({ ...appSettings, storeOpensAt: e.target.value || null })}
+                            className="h-9 rounded-lg bg-background border-border text-sm"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <Separator className="bg-border" />
+
+                  {/* Fees Section */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Fees & Charges</h3>
+                    <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-2">
                       <Label className="text-sm">Delivery Fee (₹)</Label>
                       <Input
@@ -797,6 +866,7 @@ export default function AdminDashboard() {
                       />
                       <p className="text-[11px] text-muted-foreground">Set to 0 to always charge delivery fee</p>
                     </div>
+                  </div>
                   </div>
                   <Button
                     onClick={handleSaveSettings}

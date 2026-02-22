@@ -16,7 +16,7 @@ interface Food {
   image: string
   rating: number
   preparationTime?: number
-  availability?: boolean
+  availability: boolean
 }
 
 export default function MenuPage() {

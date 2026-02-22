@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import Order from '../models/Order';
 import Cart from '../models/Cart';
+import Food from '../models/Food';
+import Settings from '../models/Settings';
 import { io } from '../server';
 
 // @desc    Create new order
@@ -10,6 +12,22 @@ export const createOrder = async (req: Request, res: Response) => {
     const { deliveryAddress, paymentMethod, customerName, customerPhone, items, totalAmount } = req.body;
 
     try {
+        const settings = await Settings.findOne();
+        if (settings && !settings.isStoreOpen) {
+            return res.status(400).json({ message: 'Store is currently closed. We are not accepting orders at this time.' });
+        }
+
+        // Verify food availability
+        for (const item of items) {
+            const food = await Food.findById(item.foodId);
+            if (!food) {
+                return res.status(404).json({ message: `Food item '${item.name}' not found.` });
+            }
+            if (!food.availability) {
+                return res.status(400).json({ message: `'${item.name}' is currently out of stock.` });
+            }
+        }
+
         const order = new Order({
             userId: req.user?._id as any,
             items,
