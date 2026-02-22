@@ -182,8 +182,10 @@ export default function AdminDashboard() {
     }
     fetchOrders()
 
-    // Connect to WebSocket
-    const socket = ioClient("http://localhost:5000")
+    // Connect to WebSocket using the environment API URL
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+    const socketUrl = apiUrl.replace(/\/api\/?$/, "")
+    const socket = ioClient(socketUrl)
     socketRef.current = socket
 
     socket.on("connect", () => {
@@ -798,7 +800,17 @@ export default function AdminDashboard() {
                               type="checkbox"
                               className="sr-only peer"
                               checked={appSettings.isStoreOpen}
-                              onChange={(e) => setAppSettings({ ...appSettings, isStoreOpen: e.target.checked })}
+                              onChange={async (e) => {
+                                const newStatus = e.target.checked
+                                setAppSettings({ ...appSettings, isStoreOpen: newStatus })
+                                try {
+                                  await api.put("/settings", { ...appSettings, isStoreOpen: newStatus })
+                                  toast.success(`Store is now ${newStatus ? 'Open' : 'Closed'}`)
+                                } catch {
+                                  toast.error("Failed to update store status")
+                                  setAppSettings({ ...appSettings, isStoreOpen: !newStatus })
+                                }
+                              }}
                             />
                             <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                           </label>
