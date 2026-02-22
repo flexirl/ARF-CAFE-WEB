@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ARF CAFE — Premium Cloud Kitchen",
+  title: "KRAVINGS by ARF CAFE — Premium Cloud Kitchen",
   description:
     "Gourmet meals delivered hot and fresh. Curated menus, premium ingredients, lightning-fast delivery.",
 };

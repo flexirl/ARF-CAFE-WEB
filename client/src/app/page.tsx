@@ -33,7 +33,7 @@ export default function Home() {
               Why Choose Us
             </p>
             <h2 className="text-3xl md:text-4xl font-bold">
-              Why People <span className="text-gradient">Love</span> ARF Cafe
+              Why People <span className="text-gradient">Love</span> Kravings by ARF Cafe
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">

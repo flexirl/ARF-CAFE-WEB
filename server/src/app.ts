@@ -41,7 +41,7 @@ app.use('/api/coupons', couponRoutes);
 
 // Basic Route
 app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Welcome to ARF CAFE API' });
+  res.json({ message: 'Welcome to KRAVINGS BY ARF CAFE API' });
 });
 
 // Error Handling Middleware

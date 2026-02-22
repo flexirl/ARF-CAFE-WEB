@@ -58,7 +58,7 @@ export default function LoginPage() {
           <ChefHat className="h-6 w-6 text-primary" />
         </div>
         <h1 className="text-2xl font-bold">Welcome back</h1>
-        <p className="text-sm text-muted-foreground">Sign in to your ARF CAFE account</p>
+        <p className="text-sm text-muted-foreground">Sign in to your KRAVINGS account</p>
       </div>
 
       {/* Google Login */}

@@ -71,9 +71,14 @@ export function Navbar() {
           <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
             <ChefHat className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-lg tracking-tight hidden sm:block">
-            ARF <span className="text-primary">CAFE</span>
-          </span>
+          <div className="flex-col justify-center hidden sm:flex">
+            <span className="font-bold text-lg leading-none tracking-tight">
+              KRAVINGS
+            </span>
+            <span className="text-primary text-[0.65rem] font-bold tracking-widest leading-none mt-0.5">
+              BY ARF CAFE
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}
@@ -101,7 +106,10 @@ export function Navbar() {
               <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
                 <ChefHat className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg">ARF <span className="text-primary">CAFE</span></span>
+              <div className="flex flex-col justify-center">
+                <span className="font-bold text-lg leading-none tracking-tight">KRAVINGS</span>
+                <span className="text-primary text-[0.65rem] font-bold tracking-widest leading-none mt-0.5">BY ARF CAFE</span>
+              </div>
             </div>
             <nav className="flex flex-col gap-1">
               {mobileNavItems.map((item) => (

@@ -59,7 +59,7 @@ export default function RegisterPage() {
           <ChefHat className="h-6 w-6 text-primary" />
         </div>
         <h1 className="text-2xl font-bold">Create account</h1>
-        <p className="text-sm text-muted-foreground">Join ARF CAFE for exclusive perks</p>
+        <p className="text-sm text-muted-foreground">Join KRAVINGS for exclusive perks</p>
       </div>
 
       <div className="flex justify-center">
