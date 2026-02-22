@@ -5,9 +5,18 @@ import morgan from 'morgan';
 
 const app: Application = express();
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:3000',
+  'http://localhost:3001',
+].filter(Boolean) as string[];
+
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(helmet());
 app.use(morgan('dev'));
 

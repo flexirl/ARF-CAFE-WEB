@@ -14,9 +14,15 @@ connectDB();
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:3000',
+  'http://localhost:3001',
+].filter(Boolean) as string[];
+
 export const io = new SocketIOServer(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
   },
 });
