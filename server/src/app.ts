@@ -1,27 +1,21 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import morgan from 'morgan';
 
 const app: Application = express();
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  'http://localhost:3000',
-  'http://localhost:3001',
-].filter(Boolean) as string[];
-
-// Middleware
-app.use(express.json());
-app.use(cors({
-  origin: allowedOrigins,
+// CORS — allow Vercel frontend + localhost
+const corsOptions: cors.CorsOptions = {
+  origin: true, // reflect the request origin — allows all origins
   credentials: true,
-}));
-app.use(helmet({
-  crossOriginOpenerPolicy: false,
-  crossOriginResourcePolicy: false,
-  crossOriginEmbedderPolicy: false,
-}));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// Middleware — CORS must be FIRST
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // explicit preflight for all routes
+app.use(express.json());
 app.use(morgan('dev'));
 
 // Routes
