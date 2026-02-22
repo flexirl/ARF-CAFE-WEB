@@ -17,6 +17,10 @@ export default function CartPage() {
 
   useEffect(() => {
     const checkAvailability = async () => {
+      if (items.length === 0) {
+        setUnavailableItems([])
+        return
+      }
       try {
         const [settingsRes, foodsRes] = await Promise.all([
           api.get("/settings"),
@@ -27,7 +31,7 @@ export default function CartPage() {
         const availableFoods = foodsRes.data
         const outOfStockIds = items
           .filter((cartItem) => {
-             const dbItem = availableFoods.find((f: any) => f._id === cartItem.foodId)
+             const dbItem = availableFoods.find((f: { _id: string; availability: boolean }) => f._id === cartItem.foodId)
              // If not found in DB at all, or availability is explicitly false
              return !dbItem || dbItem.availability === false
           })
@@ -39,11 +43,7 @@ export default function CartPage() {
       }
     }
 
-    if (items.length > 0) {
-      checkAvailability()
-    } else {
-      setUnavailableItems([])
-    }
+    checkAvailability()
   }, [items])
 
   if (items.length === 0) {

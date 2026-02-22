@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import api from "@/lib/api"
 import { AxiosError } from "axios"
 import { Separator } from "@/components/ui/separator"
+import Image from "next/image"
 
 interface AppSettings {
   deliveryFee: number
@@ -304,14 +305,6 @@ export default function AdminDashboard() {
     }
   }
 
-  if (authLoading || !user || user.role !== "admin") {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
   // Fetch settings
   useEffect(() => {
     const fetchSettings = async () => {
@@ -338,6 +331,14 @@ export default function AdminDashboard() {
     }
     if (user?.role === "admin") fetchCoupons()
   }, [user])
+
+  if (authLoading || !user || user.role !== "admin") {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   const handleSaveSettings = async () => {
     setSettingsSaving(true)
@@ -577,7 +578,7 @@ export default function AdminDashboard() {
 
                   {imagePreview && (
                     <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-border">
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                      <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized />
                       <button
                         type="button"
                         onClick={() => { setImageFile(null); setImagePreview("") }}
@@ -618,8 +619,8 @@ export default function AdminDashboard() {
                   key={food._id}
                   className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-border/80 transition-colors"
                 >
-                  <div className="h-16 w-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
-                    <img src={food.image} alt={food.name} className="h-full w-full object-cover" />
+                  <div className="relative h-16 w-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
+                    <Image src={food.image} alt={food.name} fill className="object-cover" />
                   </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">

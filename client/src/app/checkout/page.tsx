@@ -125,7 +125,7 @@ export default function CheckoutPage() {
         const availableFoods = foodsRes.data
         const outOfStockIds = items
           .filter((cartItem) => {
-             const dbItem = availableFoods.find((f: any) => f._id === cartItem.foodId)
+             const dbItem = availableFoods.find((f: { _id: string; availability: boolean }) => f._id === cartItem.foodId)
              return !dbItem || dbItem.availability === false
           })
           .map((item) => item.foodId)
