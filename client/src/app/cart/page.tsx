@@ -1,5 +1,7 @@
 "use client"
 
+import { useState, useEffect } from "react"
+import api from "@/lib/api"
 import { useCart } from "@/context/cart-context"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -9,6 +11,40 @@ import Image from "next/image"
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, clearCart, totalAmount } = useCart()
+
+  const [isStoreOpen, setIsStoreOpen] = useState(true)
+  const [unavailableItems, setUnavailableItems] = useState<string[]>([])
+
+  useEffect(() => {
+    const checkAvailability = async () => {
+      try {
+        const [settingsRes, foodsRes] = await Promise.all([
+          api.get("/settings"),
+          api.get("/foods") // Public endpoint fetching active foods, but some might be availability: false
+        ])
+        setIsStoreOpen(settingsRes.data.isStoreOpen ?? true)
+        
+        const availableFoods = foodsRes.data
+        const outOfStockIds = items
+          .filter((cartItem) => {
+             const dbItem = availableFoods.find((f: any) => f._id === cartItem.foodId)
+             // If not found in DB at all, or availability is explicitly false
+             return !dbItem || dbItem.availability === false
+          })
+          .map((item) => item.foodId)
+          
+        setUnavailableItems(outOfStockIds)
+      } catch (err) {
+        console.error("Failed to sync cart status", err)
+      }
+    }
+
+    if (items.length > 0) {
+      checkAvailability()
+    } else {
+      setUnavailableItems([])
+    }
+  }, [items])
 
   if (items.length === 0) {
     return (
@@ -42,13 +78,24 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Items List */}
         <div className="lg:col-span-2 space-y-4">
-          {items.map((item) => (
+          {items.map((item) => {
+            const isUnavailable = unavailableItems.includes(item.foodId)
+            return (
             <div
               key={item.foodId}
-              className="flex gap-4 p-4 rounded-2xl bg-card border border-border hover:border-border/80 transition-all"
+              className={`flex gap-4 p-4 rounded-2xl bg-card border transition-all ${
+                isUnavailable ? "border-destructive/40 bg-destructive/5" : "border-border hover:border-border/80"
+              }`}
             >
-              <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+              <div className={`relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 ${isUnavailable ? "grayscale opacity-60" : ""}`}>
                 <Image src={item.image} alt={item.name} fill className="object-cover" />
+                {isUnavailable && (
+                  <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                     <span className="text-[10px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded shadow whitespace-nowrap">
+                       Out of Stock
+                     </span>
+                  </div>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
@@ -83,7 +130,7 @@ export default function CartPage() {
                 </div>
               </div>
             </div>
-          ))}
+          )})}
           <button
             onClick={clearCart}
             className="text-sm text-muted-foreground hover:text-destructive transition-colors"
@@ -115,14 +162,30 @@ export default function CartPage() {
                 <span className="text-primary">₹{grandTotal}</span>
               </div>
             </div>
-            <Button
-              className="w-full mt-6 h-12 text-base rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground glow-orange hover:glow-orange-strong"
-              asChild
-            >
-              <Link href="/checkout">
-                Checkout <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
+            {!isStoreOpen ? (
+              <Button
+                disabled
+                className="w-full mt-6 h-12 text-base rounded-xl bg-secondary text-muted-foreground transition-all"
+              >
+                Store is Closed
+              </Button>
+            ) : unavailableItems.length > 0 ? (
+              <Button
+                disabled
+                className="w-full mt-6 h-12 text-base rounded-xl bg-destructive/20 text-destructive-foreground transition-all border border-destructive/30 hover:bg-destructive/20"
+              >
+                Remove out of stock items
+              </Button>
+            ) : (
+              <Button
+                className="w-full mt-6 h-12 text-base rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground glow-orange hover:glow-orange-strong"
+                asChild
+              >
+                <Link href="/checkout">
+                  Checkout <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

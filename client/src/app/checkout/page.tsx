@@ -59,6 +59,7 @@ export default function CheckoutPage() {
   const [gstPercent, setGstPercent] = useState(5)
   const [freeDeliveryAbove, setFreeDeliveryAbove] = useState(0)
   const [isStoreOpen, setIsStoreOpen] = useState(true)
+  const [unavailableItems, setUnavailableItems] = useState<string[]>([])
 
   // Coupon
   const [couponCode, setCouponCode] = useState("")
@@ -105,19 +106,35 @@ export default function CheckoutPage() {
     }
   }
 
-  // Fetch settings
+  // Fetch settings & availability
   useEffect(() => {
-    const fetchSettings = async () => {
+    const fetchStatus = async () => {
       try {
-        const { data } = await api.get("/settings")
+        const [settingsRes, foodsRes] = await Promise.all([
+          api.get("/settings"),
+          api.get("/foods") // Public foods
+        ])
+        
+        const data = settingsRes.data
         setDeliveryFeeBase(data.deliveryFee ?? 40)
         setGstPercent(data.gstPercent ?? 5)
         setFreeDeliveryAbove(data.freeDeliveryAbove ?? 0)
         setIsStoreOpen(data.isStoreOpen ?? true)
+        
+        // Check availability
+        const availableFoods = foodsRes.data
+        const outOfStockIds = items
+          .filter((cartItem) => {
+             const dbItem = availableFoods.find((f: any) => f._id === cartItem.foodId)
+             return !dbItem || dbItem.availability === false
+          })
+          .map((item) => item.foodId)
+          
+        setUnavailableItems(outOfStockIds)
       } catch { /* fallback to defaults */ }
     }
-    fetchSettings()
-  }, [])
+    if (items.length > 0) fetchStatus()
+  }, [items])
 
   const deliveryFee = freeDeliveryAbove > 0 && totalAmount >= freeDeliveryAbove ? 0 : deliveryFeeBase
   const tax = Math.round(totalAmount * (gstPercent / 100))
@@ -199,6 +216,10 @@ export default function CheckoutPage() {
     }
     if (!isStoreOpen) {
       toast.error("Store is currently closed")
+      return
+    }
+    if (unavailableItems.length > 0) {
+      toast.error("Some items in your cart are out of stock. Please remove them.")
       return
     }
     if (items.length === 0) {
@@ -427,14 +448,16 @@ export default function CheckoutPage() {
               <h3 className="font-bold text-lg">Order Summary</h3>
 
               <div className="space-y-3 max-h-60 overflow-y-auto">
-                {items.map((item) => (
-                  <div key={item.foodId} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground truncate mr-2">
-                      {item.quantity}× {item.name}
+                {items.map((item) => {
+                  const isUnavailable = unavailableItems.includes(item.foodId)
+                  return (
+                  <div key={item.foodId} className={`flex justify-between text-sm ${isUnavailable ? 'text-destructive font-medium bg-destructive/5 -mx-2 px-2 py-1 rounded' : ''}`}>
+                    <span className={`${!isUnavailable && 'text-muted-foreground'} truncate mr-2`}>
+                      {item.quantity}× {item.name} {isUnavailable && "(Out of Stock)"}
                     </span>
                     <span className="flex-shrink-0">₹{(item.price * item.quantity).toFixed(0)}</span>
                   </div>
-                ))}
+                )})}
               </div>
 
               <Separator className="bg-border" />
@@ -510,15 +533,17 @@ export default function CheckoutPage() {
 
               <Button
                 type="submit"
-                disabled={isLoading || !otpVerified || !isStoreOpen}
+                disabled={isLoading || !otpVerified || !isStoreOpen || unavailableItems.length > 0}
                 className={`w-full h-12 text-base rounded-xl transition-all ${
-                  !isStoreOpen 
+                  !isStoreOpen || unavailableItems.length > 0
                     ? "bg-secondary text-muted-foreground" 
                     : "bg-primary hover:bg-primary/90 text-primary-foreground glow-orange hover:glow-orange-strong"
                 }`}
               >
                 {!isStoreOpen ? (
                   <>Store Closed</>
+                ) : unavailableItems.length > 0 ? (
+                  <>Items Out of Stock</>
                 ) : isLoading ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 ) : paymentMethod === "razorpay" ? (
@@ -531,6 +556,10 @@ export default function CheckoutPage() {
               {!isStoreOpen ? (
                 <p className="text-xs text-center text-destructive font-medium">
                   We are not accepting orders at this time
+                </p>
+              ) : unavailableItems.length > 0 ? (
+                <p className="text-xs text-center text-destructive font-medium">
+                  Please return to cart to remove unavailable items
                 </p>
               ) : !otpVerified && (
                 <p className="text-xs text-center text-muted-foreground">
