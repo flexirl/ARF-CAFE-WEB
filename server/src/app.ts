@@ -17,7 +17,11 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
-app.use(helmet());
+app.use(helmet({
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(morgan('dev'));
 
 // Routes
