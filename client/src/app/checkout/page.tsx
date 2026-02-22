@@ -467,19 +467,17 @@ export default function CheckoutPage() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>₹{totalAmount.toFixed(0)}</span>
                 </div>
-                {deliveryFeeBase > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Delivery Fee
-                      {freeDeliveryAbove > 0 && totalAmount >= freeDeliveryAbove && (
-                        <span className="text-green-400 ml-1">(Free!)</span>
-                      )}
-                    </span>
-                    <span className={deliveryFee === 0 ? "line-through text-muted-foreground" : ""}>
-                      ₹{deliveryFeeBase}
-                    </span>
-                  </div>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Delivery Fee
+                    {freeDeliveryAbove > 0 && totalAmount >= freeDeliveryAbove && (
+                      <span className="text-green-400 ml-1">(Free!)</span>
+                    )}
+                  </span>
+                  <span className={deliveryFee === 0 ? "line-through text-muted-foreground" : ""}>
+                    ₹{deliveryFeeBase}
+                  </span>
+                </div>
                 {gstPercent > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">GST ({gstPercent}%)</span>
