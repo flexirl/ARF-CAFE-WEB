@@ -11,6 +11,25 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import api from "@/lib/api"
 import { AxiosError } from "axios"
+
+interface AppSettings {
+  deliveryFee: number
+  gstPercent: number
+  freeDeliveryAbove: number
+}
+
+interface Coupon {
+  _id: string
+  code: string
+  discountType: "percent" | "flat"
+  discountValue: number
+  minOrder: number
+  maxDiscount: number
+  usageLimit: number
+  usedCount: number
+  isActive: boolean
+  expiresAt: string | null
+}
 import {
   Package,
   IndianRupee,
@@ -22,6 +41,7 @@ import {
   ImagePlus,
   X,
   Eye, EyeOff,
+  Tag,
 } from "lucide-react"
 
 interface Food {
@@ -62,7 +82,7 @@ interface Stats {
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<"dashboard" | "foods" | "orders">("dashboard")
+  const [activeTab, setActiveTab] = useState<"dashboard" | "foods" | "orders" | "settings" | "coupons">("dashboard")
 
   // Stats
   const [stats, setStats] = useState<Stats | null>(null)
@@ -88,6 +108,26 @@ export default function AdminDashboard() {
   // Orders
   const [orders, setOrders] = useState<Order[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
+
+  // Settings
+  const [appSettings, setAppSettings] = useState<AppSettings>({ deliveryFee: 40, gstPercent: 5, freeDeliveryAbove: 0 })
+  const [settingsLoading, setSettingsLoading] = useState(false)
+  const [settingsSaving, setSettingsSaving] = useState(false)
+
+  // Coupons
+  const [coupons, setCoupons] = useState<Coupon[]>([])
+  const [couponsLoading, setCouponsLoading] = useState(true)
+  const [showCouponForm, setShowCouponForm] = useState(false)
+  const [couponSaving, setCouponSaving] = useState(false)
+  const [newCoupon, setNewCoupon] = useState({
+    code: "",
+    discountType: "percent" as "percent" | "flat",
+    discountValue: "",
+    minOrder: "",
+    maxDiscount: "",
+    usageLimit: "",
+    expiresAt: "",
+  })
 
   // Auth guard
   useEffect(() => {
@@ -255,10 +295,88 @@ export default function AdminDashboard() {
     )
   }
 
+  // Fetch settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      setSettingsLoading(true)
+      try {
+        const { data } = await api.get("/settings")
+        setAppSettings(data)
+      } catch { /* ignore */ } finally {
+        setSettingsLoading(false)
+      }
+    }
+    if (user?.role === "admin") fetchSettings()
+  }, [user])
+
+  // Fetch coupons
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const { data } = await api.get("/coupons")
+        setCoupons(data)
+      } catch { /* ignore */ } finally {
+        setCouponsLoading(false)
+      }
+    }
+    if (user?.role === "admin") fetchCoupons()
+  }, [user])
+
+  const handleSaveSettings = async () => {
+    setSettingsSaving(true)
+    try {
+      const { data } = await api.put("/settings", appSettings)
+      setAppSettings(data)
+      toast.success("Settings saved!")
+    } catch {
+      toast.error("Failed to save settings")
+    } finally {
+      setSettingsSaving(false)
+    }
+  }
+
+  const handleCreateCoupon = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCouponSaving(true)
+    try {
+      const { data } = await api.post("/coupons", {
+        code: newCoupon.code,
+        discountType: newCoupon.discountType,
+        discountValue: parseFloat(newCoupon.discountValue),
+        minOrder: newCoupon.minOrder ? parseFloat(newCoupon.minOrder) : 0,
+        maxDiscount: newCoupon.maxDiscount ? parseFloat(newCoupon.maxDiscount) : 0,
+        usageLimit: newCoupon.usageLimit ? parseInt(newCoupon.usageLimit) : 0,
+        expiresAt: newCoupon.expiresAt || null,
+      })
+      setCoupons((prev) => [data, ...prev])
+      setNewCoupon({ code: "", discountType: "percent", discountValue: "", minOrder: "", maxDiscount: "", usageLimit: "", expiresAt: "" })
+      setShowCouponForm(false)
+      toast.success("Coupon created!")
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Failed to create coupon")
+    } finally {
+      setCouponSaving(false)
+    }
+  }
+
+  const handleDeleteCoupon = async (id: string) => {
+    if (!confirm("Delete this coupon?")) return
+    try {
+      await api.delete(`/coupons/${id}`)
+      setCoupons((prev) => prev.filter((c) => c._id !== id))
+      toast.success("Coupon deleted")
+    } catch {
+      toast.error("Failed to delete coupon")
+    }
+  }
+
   const TABS = [
     { key: "dashboard", label: "Dashboard" },
     { key: "foods", label: "Food Items" },
     { key: "orders", label: "Orders" },
+    { key: "settings", label: "Settings" },
+    { key: "coupons", label: "Coupons" },
   ] as const
 
   return (
@@ -623,6 +741,239 @@ export default function AdminDashboard() {
                     </div>
                   </CardContent>
                 </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==================== SETTINGS TAB ==================== */}
+      {activeTab === "settings" && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold">Settings</h2>
+            <p className="text-muted-foreground text-sm mt-1">Configure delivery fees, GST, and charges</p>
+          </div>
+
+          <Card className="bg-card border-border">
+            <CardContent className="pt-6 space-y-5">
+              {settingsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              ) : (
+                <>
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Delivery Fee (₹)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={appSettings.deliveryFee}
+                        onChange={(e) => setAppSettings({ ...appSettings, deliveryFee: parseFloat(e.target.value) || 0 })}
+                        className="h-10 rounded-xl bg-secondary border-border"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">GST (%)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={appSettings.gstPercent}
+                        onChange={(e) => setAppSettings({ ...appSettings, gstPercent: parseFloat(e.target.value) || 0 })}
+                        className="h-10 rounded-xl bg-secondary border-border"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Free Delivery Above (₹)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0 = disabled"
+                        value={appSettings.freeDeliveryAbove}
+                        onChange={(e) => setAppSettings({ ...appSettings, freeDeliveryAbove: parseFloat(e.target.value) || 0 })}
+                        className="h-10 rounded-xl bg-secondary border-border"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Set to 0 to always charge delivery fee</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleSaveSettings}
+                    disabled={settingsSaving}
+                    className="h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground px-8"
+                  >
+                    {settingsSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Settings
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ==================== COUPONS TAB ==================== */}
+      {activeTab === "coupons" && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Coupons</h2>
+              <p className="text-muted-foreground text-sm mt-1">{coupons.length} coupons</p>
+            </div>
+            <Button
+              onClick={() => setShowCouponForm(!showCouponForm)}
+              className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+            >
+              {showCouponForm ? <X className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
+              {showCouponForm ? "Cancel" : "New Coupon"}
+            </Button>
+          </div>
+
+          {/* Add Coupon Form */}
+          {showCouponForm && (
+            <Card className="bg-card border-border border-primary/20">
+              <CardContent className="pt-6">
+                <form onSubmit={handleCreateCoupon} className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Coupon Code</Label>
+                      <Input
+                        required
+                        placeholder="e.g. WELCOME20"
+                        value={newCoupon.code}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                        className="h-10 rounded-xl bg-secondary border-border uppercase"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Discount Type</Label>
+                      <select
+                        value={newCoupon.discountType}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, discountType: e.target.value as "percent" | "flat" })}
+                        className="w-full h-10 px-3 rounded-xl bg-secondary border border-border text-sm"
+                      >
+                        <option value="percent">Percentage (%)</option>
+                        <option value="flat">Flat Amount (₹)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Discount Value</Label>
+                      <Input
+                        required
+                        type="number"
+                        min="1"
+                        placeholder={newCoupon.discountType === "percent" ? "e.g. 20" : "e.g. 50"}
+                        value={newCoupon.discountValue}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, discountValue: e.target.value })}
+                        className="h-10 rounded-xl bg-secondary border-border"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Min Order (₹)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={newCoupon.minOrder}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, minOrder: e.target.value })}
+                        className="h-10 rounded-xl bg-secondary border-border"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Max Discount (₹)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0 = no cap"
+                        value={newCoupon.maxDiscount}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, maxDiscount: e.target.value })}
+                        className="h-10 rounded-xl bg-secondary border-border"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Usage Limit</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0 = unlimited"
+                        value={newCoupon.usageLimit}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, usageLimit: e.target.value })}
+                        className="h-10 rounded-xl bg-secondary border-border"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm">Expires At (optional)</Label>
+                    <Input
+                      type="datetime-local"
+                      value={newCoupon.expiresAt}
+                      onChange={(e) => setNewCoupon({ ...newCoupon, expiresAt: e.target.value })}
+                      className="h-10 rounded-xl bg-secondary border-border w-auto"
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={couponSaving}
+                    className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    {couponSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Tag className="mr-2 h-4 w-4" />}
+                    Create Coupon
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Coupon List */}
+          {couponsLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : coupons.length === 0 ? (
+            <div className="text-center py-16">
+              <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">No coupons yet. Create one to get started.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {coupons.map((coupon) => (
+                <div
+                  key={coupon._id}
+                  className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-border/80 transition-colors"
+                >
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Tag className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-sm font-mono">{coupon.code}</h4>
+                      <span className={`text-xs px-2 py-0.5 rounded-lg ${coupon.isActive ? "bg-green-500/10 text-green-400" : "bg-destructive/10 text-destructive"}`}>
+                        {coupon.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {coupon.discountType === "percent" ? `${coupon.discountValue}% off` : `₹${coupon.discountValue} off`}
+                      {coupon.minOrder > 0 && ` · Min ₹${coupon.minOrder}`}
+                      {coupon.maxDiscount > 0 && ` · Max ₹${coupon.maxDiscount}`}
+                      {coupon.usageLimit > 0 && ` · ${coupon.usedCount}/${coupon.usageLimit} used`}
+                      {coupon.expiresAt && ` · Expires ${new Date(coupon.expiresAt).toLocaleDateString("en-IN")}`}
+                    </p>
+                  </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
+                    onClick={() => handleDeleteCoupon(coupon._id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               ))}
             </div>
           )}

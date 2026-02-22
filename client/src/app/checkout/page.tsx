@@ -54,6 +54,17 @@ export default function CheckoutPage() {
   const [generatedOtp, setGeneratedOtp] = useState("")
   const [otpTimer, setOtpTimer] = useState(0)
 
+  // Dynamic fees from settings
+  const [deliveryFeeBase, setDeliveryFeeBase] = useState(40)
+  const [gstPercent, setGstPercent] = useState(5)
+  const [freeDeliveryAbove, setFreeDeliveryAbove] = useState(0)
+
+  // Coupon
+  const [couponCode, setCouponCode] = useState("")
+  const [couponDiscount, setCouponDiscount] = useState(0)
+  const [couponApplied, setCouponApplied] = useState("")
+  const [couponLoading, setCouponLoading] = useState(false)
+
   // Load Razorpay script
   useEffect(() => {
     const script = document.createElement("script")
@@ -93,9 +104,46 @@ export default function CheckoutPage() {
     }
   }
 
-  const deliveryFee = 40
-  const tax = Math.round(totalAmount * 0.05)
-  const grandTotal = totalAmount + deliveryFee + tax
+  // Fetch settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get("/settings")
+        setDeliveryFeeBase(data.deliveryFee ?? 40)
+        setGstPercent(data.gstPercent ?? 5)
+        setFreeDeliveryAbove(data.freeDeliveryAbove ?? 0)
+      } catch { /* fallback to defaults */ }
+    }
+    fetchSettings()
+  }, [])
+
+  const deliveryFee = freeDeliveryAbove > 0 && totalAmount >= freeDeliveryAbove ? 0 : deliveryFeeBase
+  const tax = Math.round(totalAmount * (gstPercent / 100))
+  const grandTotal = totalAmount + deliveryFee + tax - couponDiscount
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setCouponLoading(true)
+    try {
+      const { data } = await api.post("/coupons/apply", { code: couponCode, orderTotal: totalAmount })
+      setCouponDiscount(data.discount)
+      setCouponApplied(data.code)
+      toast.success(data.message)
+    } catch (error: unknown) {
+      const axiosError = error as import("axios").AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Invalid coupon")
+      setCouponDiscount(0)
+      setCouponApplied("")
+    } finally {
+      setCouponLoading(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setCouponCode("")
+    setCouponDiscount(0)
+    setCouponApplied("")
+  }
 
   const handleRazorpayPayment = async (orderId: string) => {
     try {
@@ -391,13 +439,62 @@ export default function CheckoutPage() {
                   <span>₹{totalAmount.toFixed(0)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery Fee</span>
-                  <span>₹{deliveryFee}</span>
+                  <span className="text-muted-foreground">
+                    Delivery Fee
+                    {freeDeliveryAbove > 0 && totalAmount >= freeDeliveryAbove && (
+                      <span className="text-green-400 ml-1">(Free!)</span>
+                    )}
+                  </span>
+                  <span className={deliveryFee === 0 ? "line-through text-muted-foreground" : ""}>
+                    ₹{deliveryFeeBase}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">GST (5%)</span>
+                  <span className="text-muted-foreground">GST ({gstPercent}%)</span>
                   <span>₹{tax}</span>
                 </div>
+
+                {/* Coupon Input */}
+                {!couponApplied ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Coupon code"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      className="h-9 rounded-lg bg-secondary border-border text-sm uppercase flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      variant="outline"
+                      className="h-9 rounded-lg text-sm px-4 border-primary/40 text-primary hover:bg-primary/10"
+                    >
+                      {couponLoading ? "..." : "Apply"}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center bg-green-500/10 rounded-lg px-3 py-2">
+                    <span className="text-green-400 text-xs font-medium">
+                      🎉 {couponApplied} applied — ₹{couponDiscount} off
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+
+                {couponDiscount > 0 && (
+                  <div className="flex justify-between text-green-400">
+                    <span>Coupon Discount</span>
+                    <span>-₹{couponDiscount}</span>
+                  </div>
+                )}
+
                 <Separator className="bg-border" />
                 <div className="flex justify-between text-base font-bold">
                   <span>Total</span>

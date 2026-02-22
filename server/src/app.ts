@@ -26,6 +26,8 @@ import orderRoutes from './routes/orderRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import adminRoutes from './routes/adminRoutes';
+import settingsRoutes from './routes/settingsRoutes';
+import couponRoutes from './routes/couponRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/foods', foodRoutes);
@@ -34,6 +36,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Basic Route
 app.get('/', (req: Request, res: Response) => {
