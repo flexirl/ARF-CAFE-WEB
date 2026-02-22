@@ -14,6 +14,11 @@ export default function CartPage() {
 
   const [isStoreOpen, setIsStoreOpen] = useState(true)
   const [unavailableItems, setUnavailableItems] = useState<string[]>([])
+  
+  // Dynamic Fees
+  const [deliveryFeeBase, setDeliveryFeeBase] = useState(40)
+  const [gstPercent, setGstPercent] = useState(5)
+  const [freeDeliveryAbove, setFreeDeliveryAbove] = useState(0)
 
   useEffect(() => {
     const checkAvailability = async () => {
@@ -26,7 +31,11 @@ export default function CartPage() {
           api.get("/settings"),
           api.get("/foods") // Public endpoint fetching active foods, but some might be availability: false
         ])
-        setIsStoreOpen(settingsRes.data.isStoreOpen ?? true)
+        const settingsData = settingsRes.data
+        setIsStoreOpen(settingsData.isStoreOpen ?? true)
+        setDeliveryFeeBase(settingsData.deliveryFee ?? 0)
+        setGstPercent(settingsData.gstPercent ?? 0)
+        setFreeDeliveryAbove(settingsData.freeDeliveryAbove ?? 0)
         
         const availableFoods = foodsRes.data
         const outOfStockIds = items
@@ -63,8 +72,8 @@ export default function CartPage() {
     )
   }
 
-  const deliveryFee = 40
-  const tax = Math.round(totalAmount * 0.05)
+  const deliveryFee = freeDeliveryAbove > 0 && totalAmount >= freeDeliveryAbove ? 0 : deliveryFeeBase
+  const tax = Math.round(totalAmount * (gstPercent / 100))
   const grandTotal = totalAmount + deliveryFee + tax
 
   return (
@@ -148,14 +157,28 @@ export default function CartPage() {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span>₹{totalAmount.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Delivery Fee</span>
-                <span>₹{deliveryFee}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax (5%)</span>
-                <span>₹{tax}</span>
-              </div>
+              
+              {deliveryFeeBase > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Delivery Fee
+                    {freeDeliveryAbove > 0 && totalAmount >= freeDeliveryAbove && (
+                      <span className="text-green-400 ml-1">(Free!)</span>
+                    )}
+                  </span>
+                  <span className={deliveryFee === 0 ? "line-through text-muted-foreground" : ""}>
+                    ₹{deliveryFeeBase}
+                  </span>
+                </div>
+              )}
+
+              {gstPercent > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tax ({gstPercent}%)</span>
+                  <span>₹{tax}</span>
+                </div>
+              )}
+              
               <Separator className="bg-border" />
               <div className="flex justify-between text-base font-bold">
                 <span>Total</span>
