@@ -22,16 +22,10 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      try {
-        const refreshToken = localStorage.getItem('refreshToken'); // Assuming stored separately or handle differently
-        // Refresh token logic here if implemented on backend completely
-        // For now, just logout or reject
-        return Promise.reject(error);
-      } catch (e) {
-        return Promise.reject(e);
-      }
+      // Refresh token logic not yet implemented — reject for now
+      return Promise.reject(error);
     }
     return Promise.reject(error);
   }

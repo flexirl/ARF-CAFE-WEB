@@ -23,8 +23,16 @@ import {
   ShoppingBag,
 } from "lucide-react"
 import Link from "next/link"
+import { AxiosError } from "axios"
+
+interface RazorpayResponse {
+  razorpay_order_id: string
+  razorpay_payment_id: string
+  razorpay_signature: string
+}
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interface Window { Razorpay: any }
 }
 
@@ -100,7 +108,7 @@ export default function CheckoutPage() {
         name: "ARF CAFE",
         description: "Food Order Payment",
         order_id: data.orderId,
-        handler: async (response: any) => {
+        handler: async (response: RazorpayResponse) => {
           try {
             await api.post("/payment/verify", {
               razorpay_order_id: response.razorpay_order_id,
@@ -177,8 +185,9 @@ export default function CheckoutPage() {
         toast.success("Order placed! Pay on delivery.")
         router.push("/orders")
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to place order")
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Failed to place order")
     } finally {
       setIsLoading(false)
     }

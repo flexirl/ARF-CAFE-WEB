@@ -28,10 +28,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const storedCart = localStorage.getItem("cart")
-    if (storedCart) {
-      setItems(JSON.parse(storedCart))
+    const loadCart = () => {
+      const storedCart = localStorage.getItem("cart")
+      if (storedCart) {
+        try {
+          setItems(JSON.parse(storedCart) as CartItem[])
+        } catch {
+          // ignore corrupt data
+        }
+      }
     }
+    loadCart()
   }, [])
 
   // Save cart to localStorage whenever items change

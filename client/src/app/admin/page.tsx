@@ -8,15 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import api from "@/lib/api"
+import { AxiosError } from "axios"
 import {
   Package,
   IndianRupee,
   Users,
   UtensilsCrossed,
-  TrendingUp,
   Plus,
   Trash2,
   Loader2,
@@ -207,8 +206,9 @@ export default function AdminDashboard() {
       // Refresh stats
       const { data: newStats } = await api.get("/admin/stats")
       setStats(newStats)
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to add food item")
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Failed to add food item")
     } finally {
       setAddLoading(false)
     }
@@ -474,7 +474,7 @@ export default function AdminDashboard() {
           ) : foods.length === 0 ? (
             <div className="text-center py-16">
               <UtensilsCrossed className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No food items yet. Click "Add Item" to start.</p>
+              <p className="text-muted-foreground">No food items yet. Click &quot;Add Item&quot; to start.</p>
             </div>
           ) : (
             <div className="grid gap-4">

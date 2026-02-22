@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { GoogleLogin } from "@react-oauth/google"
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google"
 import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Loader2, ChefHat } from "lucide-react"
 import { toast } from "sonner"
 import api from "@/lib/api"
+import { AxiosError } from "axios"
 
 export default function RegisterPage() {
   const [name, setName] = useState("")
@@ -29,14 +30,15 @@ export default function RegisterPage() {
       login(data)
       toast.success("Account created!")
       router.push("/")
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration failed")
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Registration failed")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
       const { data } = await api.post("/auth/google", {
         credential: credentialResponse.credential,
@@ -44,8 +46,9 @@ export default function RegisterPage() {
       login(data)
       toast.success("Welcome!")
       router.push("/")
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Google login failed")
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Google login failed")
     }
   }
 

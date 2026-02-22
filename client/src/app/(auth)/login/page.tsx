@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { GoogleLogin } from "@react-oauth/google"
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google"
 import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Loader2, ChefHat } from "lucide-react"
 import { toast } from "sonner"
 import api from "@/lib/api"
+import { AxiosError } from "axios"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -28,14 +29,15 @@ export default function LoginPage() {
       login(data)
       toast.success("Welcome back!")
       router.push(data.role === "admin" ? "/admin" : "/")
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Something went wrong")
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Something went wrong")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
       const { data } = await api.post("/auth/google", {
         credential: credentialResponse.credential,
@@ -43,8 +45,9 @@ export default function LoginPage() {
       login(data)
       toast.success("Welcome!")
       router.push(data.role === "admin" ? "/admin" : "/")
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Google login failed")
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
+      toast.error(axiosError.response?.data?.message || "Google login failed")
     }
   }
 
