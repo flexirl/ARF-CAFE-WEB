@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { FoodCard } from "@/components/food-card"
 import { Input } from "@/components/ui/input"
 import { Search, Flame, Loader2 } from "lucide-react"
 import api from "@/lib/api"
 
-const CATEGORIES = ["All", "Burger", "Pizza", "Rice Bowl", "Salad", "Sides", "Drinks", "Dessert"]
 
 interface Food {
   _id: string
@@ -25,6 +24,12 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
+
+  // Derive categories dynamically from fetched foods
+  const categories = useMemo(() => {
+    const uniqueCategories = [...new Set(foods.map((f) => f.category))].sort()
+    return ["All", ...uniqueCategories]
+  }, [foods])
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -77,7 +82,7 @@ export default function MenuPage() {
 
           {/* Category Tabs */}
           <div className="flex gap-2 mt-6 overflow-x-auto pb-1 scrollbar-hide">
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
