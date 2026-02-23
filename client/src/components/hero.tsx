@@ -14,134 +14,140 @@ const STATS = [
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-[128px] animate-[glow_4s_ease-in-out_infinite]" />
-        <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-400/10 rounded-full blur-[100px] animate-[glow_5s_ease-in-out_infinite_1s]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-background">
+      {/* Massive Fluid Background Mesh */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3], rotate: [0, 90, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute w-[800px] h-[800px] md:w-[1200px] md:h-[1200px] rounded-full blur-[120px] bg-gradient-to-tr from-primary/10 via-orange-300/20 to-transparent"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2], rotate: [0, -90, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full blur-[140px] bg-gradient-to-bl from-orange-400/10 via-primary/5 to-transparent mix-blend-multiply"
+        />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-8"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <Flame className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Premium Cloud Kitchen</span>
-            </div>
-
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
-              Taste the{" "}
-              <span className="text-gradient">Future</span>
-              <br />
-              of Food
-            </h1>
-
-            <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
-              Gourmet meals crafted by expert chefs, delivered hot &amp; fresh in 30 minutes.
-              Premium ingredients. Exceptional flavours.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground h-13 px-8 rounded-xl text-base font-semibold glow-orange transition-all hover:glow-orange-strong"
+      <div className="container mx-auto px-4 md:px-6 relative z-10 w-full">
+        <div className="flex justify-center mb-16 lg:mb-0">
+            {/* Center-aligned Content for High Impact */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-10 text-center max-w-4xl mx-auto flex flex-col items-center"
+            >
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-primary/20 bg-background/50 backdrop-blur-md shadow-sm"
               >
-                <Link href="/menu">
-                  Order Now <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                asChild
-                className="h-13 px-8 rounded-xl text-base border-border hover:bg-secondary/60 hover:border-primary/30"
-              >
-                <Link href="/menu">Explore Menu</Link>
-              </Button>
-            </div>
+                <Flame className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-sm font-semibold text-primary uppercase tracking-widest">The Evolution of Taste</span>
+              </motion.div>
 
-            {/* Stats Bar */}
-            <div className="flex flex-wrap gap-6 pt-4">
-              {STATS.map((stat) => (
-                <div key={stat.label} className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
-                    <stat.icon className="h-5 w-5 text-primary" />
+              <h1 className="text-6xl md:text-8xl lg:text-[8rem] font-bold tracking-tighter leading-[0.9] text-foreground">
+                Savour the
+                <br />
+                <motion.span 
+                  animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                  className="bg-[length:200%_auto] bg-gradient-to-r from-primary via-orange-400 to-primary text-transparent bg-clip-text"
+                >
+                  Future.
+                </motion.span>
+              </h1>
+
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
+                Gourmet cuisine engineered for perfection. Expertly crafted, lightning-fast delivery to your doorstep.
+              </p>
+
+              {/* Floating food badges adding depth */}
+              <div className="absolute inset-0 pointer-events-none hidden lg:block">
+                <motion.div
+                  animate={{ y: [-15, 15, -15], rotate: [-2, 2, -2] }}
+                  transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                  className="absolute top-12 left-0 xl:-left-20 glass rounded-2xl px-5 py-4 flex items-center gap-4 bg-background/80 backdrop-blur-xl border-border/50 shadow-xl"
+                >
+                  <div className="text-3xl">🍕</div>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-foreground">Artisan Pizza</p>
+                    <p className="text-xs text-muted-foreground">Wood-fired perfection</p>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </motion.div>
+
+                <motion.div
+                  animate={{ y: [20, -20, 20], rotate: [2, -2, 2] }}
+                  transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+                  className="absolute bottom-40 left-10 xl:-left-10 glass rounded-2xl px-5 py-4 flex items-center gap-4 bg-background/80 backdrop-blur-xl border-border/50 shadow-xl"
+                >
+                  <div className="text-3xl">🍜</div>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-foreground">Spicy Ramen</p>
+                    <p className="text-xs text-muted-foreground">Authentic broth</p>
                   </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+                </motion.div>
 
-          {/* Right Visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="relative hidden lg:flex items-center justify-center"
-          >
-            <div className="relative">
-              {/* Decorative rings */}
-              <div className="absolute inset-0 rounded-full border border-primary/10 scale-150 animate-[glow_3s_ease-in-out_infinite]" />
-              <div className="absolute inset-0 rounded-full border border-primary/5 scale-[2]" />
-
-              {/* Main visual circle */}
-              <div className="w-80 h-80 rounded-full bg-gradient-to-br from-primary/20 via-orange-400/10 to-transparent flex items-center justify-center animate-[float_6s_ease-in-out_infinite]">
-                <div className="text-[120px] leading-none select-none">🍔</div>
+                <motion.div
+                  animate={{ y: [-10, 10, -10], rotate: [0, 5, 0] }}
+                  transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
+                  className="absolute top-40 right-0 xl:-right-20 glass rounded-2xl px-5 py-4 flex items-center gap-4 bg-background/80 backdrop-blur-xl border-border/50 shadow-xl"
+                >
+                  <div className="flex items-center gap-1.5 bg-yellow-400/10 px-2 py-1 rounded-full">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                    <span className="text-xs font-bold text-yellow-600 dark:text-yellow-400">4.9</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-foreground">Top Rated</p>
+                    <p className="text-xs text-muted-foreground">By 10,000+ foodies</p>
+                  </div>
+                </motion.div>
               </div>
 
-              {/* Floating food badges */}
-              <motion.div
-                animate={{ y: [-5, 5, -5] }}
-                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                className="absolute -top-6 right-4 glass rounded-2xl px-4 py-3 flex items-center gap-3"
-              >
-                <div className="text-2xl">🍕</div>
-                <div>
-                  <p className="text-xs font-bold">Pizza</p>
-                  <p className="text-[10px] text-muted-foreground">Fresh baked</p>
+              <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full sm:w-auto relative z-10">
+                <div className="relative group">
+                  <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl group-hover:bg-primary/40 transition-all duration-500" />
+                  <Button
+                    asChild
+                    size="lg"
+                    className="relative w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground h-16 px-10 rounded-full text-lg font-bold transition-all active:scale-[0.98] shadow-lg hover:shadow-xl"
+                  >
+                    <Link href="/menu">
+                      Experience Menu <ArrowRight className="ml-3 h-6 w-6" />
+                    </Link>
+                  </Button>
                 </div>
-              </motion.div>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  asChild
+                  className="w-full sm:w-auto h-16 px-10 rounded-full text-lg font-semibold bg-background/50 backdrop-blur-md border-border/50 hover:bg-secondary transition-all active:scale-[0.98]"
+                >
+                  <Link href="/menu">View Offers</Link>
+                </Button>
+              </div>
 
-              <motion.div
-                animate={{ y: [5, -5, 5] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="absolute bottom-4 -left-8 glass rounded-2xl px-4 py-3 flex items-center gap-3"
-              >
-                <div className="text-2xl">🍜</div>
-                <div>
-                  <p className="text-xs font-bold">Ramen</p>
-                  <p className="text-[10px] text-muted-foreground">Authentic</p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                animate={{ y: [-8, 4, -8] }}
-                transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                className="absolute bottom-16 -right-10 glass rounded-2xl px-4 py-3 flex items-center gap-3"
-              >
-                <div className="flex items-center gap-1">
-                  <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                  <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                  <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                  <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                  <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                </div>
-                <p className="text-xs font-bold">4.9/5</p>
-              </motion.div>
-            </div>
-          </motion.div>
+              {/* Minimal Stats */}
+              <div className="flex flex-wrap justify-center gap-8 md:gap-16 pt-12 border-t border-border/30 w-full">
+                {STATS.map((stat, i) => (
+                  <motion.div 
+                    key={stat.label} 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + (i * 0.1), duration: 0.5 }}
+                    className="flex flex-col items-center gap-2"
+                  >
+                    <p className="text-3xl font-black text-foreground tracking-tight">{stat.value}</p>
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <stat.icon className="h-4 w-4" />
+                      <p className="text-sm font-medium uppercase tracking-wider">{stat.label}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
         </div>
       </div>
     </section>
