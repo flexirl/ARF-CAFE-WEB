@@ -10,12 +10,12 @@ export function OffersSection() {
       
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16 max-w-2xl mx-auto">
-          <p className="text-primary text-sm font-bold uppercase tracking-widest mb-3">Special Deals</p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Student-Exclusive <span className="text-gradient">Offers</span>
+          <p className="text-primary text-sm font-display uppercase tracking-widest mb-3">Special Deals</p>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display mb-4">
+            Student-Exclusive <span className="text-[#d8232a]">Offers</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Because we know the end-of-month broke feeling too well. Make the most of these active deals.
+            Because we know the end-of-month broke feeling too well.<br/> Make the most of these active deals.
           </p>
         </div>
 
@@ -26,7 +26,7 @@ export function OffersSection() {
             <div className="h-12 w-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center mb-6">
               <Ticket className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Flat 20% OFF</h3>
+            <h3 className="text-xl font-display mb-2">Flat 15% OFF</h3>
             <p className="text-muted-foreground mb-6 text-sm">On your first order with us. Use code <span className="font-bold text-foreground bg-secondary px-2 py-1 rounded">KIIT20</span> at checkout.</p>
             <Link href="/menu" className="text-primary font-bold hover:underline inline-flex items-center gap-1 text-sm">
               Claim Now →
@@ -42,8 +42,8 @@ export function OffersSection() {
             <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center mb-6">
               <Users className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-xl font-bold mb-2 text-white">Hostel Combo</h3>
-            <p className="text-primary-foreground/80 mb-6 text-sm">Order for 4 or more and get 2 Coke PET bottles absolutely free. Best for match nights!</p>
+            <h3 className="text-xl font-display mb-2 text-white">Hostel Combo</h3>
+            <p className="text-primary-foreground/80 mb-6 text-sm">Order for 4 or more and get 750ml Coke bottle absolutely free. Best for match nights!</p>
             <Link href="/menu" className="text-white font-bold hover:underline inline-flex items-center gap-1 text-sm">
               Order Combo →
             </Link>
@@ -55,8 +55,8 @@ export function OffersSection() {
             <div className="h-12 w-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center mb-6">
               <Gift className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Free Dessert</h3>
-            <p className="text-muted-foreground mb-6 text-sm">Orders above ₹499 get a free Choco Lava Cake. No coupon code required.</p>
+            <h3 className="text-xl font-display mb-2">Free Ice Cream</h3>
+            <p className="text-muted-foreground mb-6 text-sm">Orders above ₹249 get a free Icecream. No coupon code required.</p>
             <Link href="/menu" className="text-primary font-bold hover:underline inline-flex items-center gap-1 text-sm">
               View Menu →
             </Link>

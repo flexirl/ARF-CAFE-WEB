@@ -1,130 +1,152 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Plus, ArrowRight } from "lucide-react";
-import { useState } from "react";
-import { useCart } from "@/context/cart-context";
+import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export function BestSellersSection() {
-  const { addToCart } = useCart();
-  const [addedItems, setAddedItems] = useState<Record<string, boolean>>({});
+interface Product {
+  _id: string;
+  image: string;
+  name: string;
+  description: string;
+  price: number;
+  badgeColor: "green" | "yellow" | "red";
+  badgeText: string;
+}
 
-  // Mock data for display on landing page
-  const bestSellers = [
-    {
-      _id: "bs1",
-      name: "Peri Peri Loaded Fries",
-      description: "Crispy fries loaded with our secret peri peri spice mix and creamy cheese sauce.",
-      price: 149,
-      image: "https://images.unsplash.com/photo-1534080564583-6be75777b70a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      category: "Snacks",
-      isAvailable: true,
-    },
-    {
-      _id: "bs2",
-      name: "Tandoori Chicken Burger",
-      description: "Juicy tandoori chicken patty with mint mayo, fresh lettuce, and toasted brioche buns.",
-      price: 199,
-      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      category: "Burgers",
-      isAvailable: true,
-    },
-    {
-      _id: "bs3",
-      name: "Classic Margherita Pizza",
-      description: "Hand-tossed crust, rich tomato sauce, fresh basil, and generous mozzarella.",
-      price: 249,
-      image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      category: "Pizzas",
-      isAvailable: true,
-    },
-  ];
+const products: Product[] = [
+  {
+    _id: "p1",
+    image: "/biryanicoke.png",
+    name: "Biryani Coke Combo",
+    description:
+      "Aromatic chicken biryani served with chilled Coke and creamy raita.",
+    price: 199,
+    badgeColor: "green",
+    badgeText: "Student Favorite",
+  },
+  {
+    _id: "p2",
+    image: "/aalocurd.png",
+    name: "Two Paratha with Curd",
+    description:
+      "Golden, crispy parathas paired with fresh, cool homemade curd.",
+    price: 99,
+    badgeColor: "yellow",
+    badgeText: "Top Rated",
+  },
+  {
+    _id: "p3",
+    image: "/friedricecombo1.png",
+    name: "Fried Rice with Chicken Chilli/Paneer Chilli",
+    description:
+      "Flavorful fried rice served with spicy chicken or paneer chilli.",
+    price: 179,
+    badgeColor: "red",
+    badgeText: "Best Seller",
+  },
+];
 
-  const handleAddToCart = (item: { _id: string; name: string; price: number; image: string; description: string; category: string; isAvailable: boolean }) => {
-    addToCart({
-      foodId: item._id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image,
-    });
-    setAddedItems(prev => ({ ...prev, [item._id]: true }));
-    setTimeout(() => {
-      setAddedItems(prev => ({ ...prev, [item._id]: false }));
-    }, 2000);
+const StarBadge = ({
+  color,
+  text,
+}: {
+  color: "green" | "yellow" | "red";
+  text: string;
+}) => {
+  const colorClass =
+    color === "green"
+      ? "fill-tmg-green"
+      : color === "yellow"
+      ? "fill-tmg-yellow"
+      : "fill-tmg-red";
+
+  return (
+    <div className="absolute -top-6 -right-4 w-[110px] h-[110px] z-10">
+      <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg">
+        <path
+          d="M100 0 L120 65 L190 50 L145 100 L190 150 L120 135 L100 200 L80 135 L10 150 L55 100 L10 50 L80 65 Z"
+          className={colorClass}
+        />
+      </svg>
+
+      <div className="absolute inset-0 flex items-center justify-center px-3">
+        <span className="text-[10px] font-display text-center leading-tight text-primary-foreground whitespace-pre-line">
+          {text}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const ProductCard = ({ product }: { product: Product }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/menu?category=combos");
   };
 
   return (
-    <section className="py-24 relative">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Our <span className="text-gradient">Best Sellers</span>
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Tried, tested, and loved by hundreds of students. You can&apos;t go wrong with these.
-            </p>
-          </div>
-          <Link
-            href="/menu"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors group"
+    <div className="flex flex-col items-center text-center max-w-[340px]">
+      <div className="relative w-full mb-4">
+        <div className="overflow-hidden rounded-xl relative">
+          <Image
+            src={product.image}
+            alt={product.name}
+            width={370}
+            height={340}
+            className="w-full h-[450px] object-cover rounded-xl transition-transform duration-500 hover:scale-105"
+          />
+
+          {/* Plus Button — LEFT SIDE */}
+          <button
+            onClick={handleClick}
+            className="absolute bottom-3 left-3 h-10 w-10 rounded-full flex items-center justify-center shadow-lg bg-primary text-primary-foreground hover:scale-105 transition-all duration-300"
           >
-            Explore Full Menu <ArrowRight className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
-          </Link>
+            <Plus className="h-5 w-5" />
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {bestSellers.map((item) => (
-            <div key={item._id} className="group flex flex-col bg-card border border-border rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-primary/20 hover:-translate-y-1">
-              <div className="relative h-56 w-full overflow-hidden bg-secondary">
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold border border-border">
-                  ⭐ Top Rated
-                </div>
-              </div>
-              
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold line-clamp-1">{item.name}</h3>
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-6 flex-1">
-                  {item.description}
-                </p>
-                
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-xl font-bold text-primary">
-                    ₹{item.price}
-                  </span>
-                  
-                  <button
-                    onClick={() => handleAddToCart(item)}
-                    className={`h-10 w-10 md:w-auto md:px-4 rounded-xl flex items-center justify-center gap-2 font-semibold transition-all ${
-                      addedItems[item._id] 
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground'
-                    }`}
-                  >
-                    {addedItems[item._id] ? (
-                      <span className="text-sm">Added</span>
-                    ) : (
-                      <>
-                        <Plus className="h-5 w-5" />
-                        <span className="hidden md:inline text-sm">Add</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
+        <StarBadge color={product.badgeColor} text={product.badgeText} />
+      </div>
+
+      <h3 className="font-display text-xl tracking-wide text-foreground mb-2">
+        {product.name}
+      </h3>
+
+      <p className="font-body text-sm text-muted-foreground leading-relaxed px-2">
+        {product.description}
+      </p>
+    </div>
+  );
+};
+
+export function BestSellersSection() {
+  return (
+    <section className="w-full bg-background py-16 md:py-24 px-6">
+      <div className="max-w-6xl mx-auto flex flex-col items-center">
+        <h2 className="font-display text-3xl md:text-[42px] tracking-wide text-[#d8232a] text-center leading-tight mb-2">
+          WHAT EVERYONE'S KRAVING ABOUT
+        </h2>
+
+        <p className="font-display text-sm md:text-base tracking-[0.25em] text-muted-foreground uppercase mb-12 md:mb-16">
+          OUR BEST SELLERS
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-12 w-full mb-12 md:mb-16">
+          {products.map((product) => (
+            <div key={product._id} className="flex justify-center">
+              <ProductCard product={product} />
             </div>
           ))}
         </div>
+
+        <a
+          href="/menu"
+          className="inline-block font-display text-sm md:text-base tracking-[0.15em] uppercase bg-primary text-primary-foreground px-10 py-4 rounded-full hover:opacity-90 transition-opacity duration-300"
+        >
+          START YOUR ORDER
+        </a>
       </div>
     </section>
   );

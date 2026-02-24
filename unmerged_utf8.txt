@@ -1,0 +1,17 @@
+﻿client/src/app/(auth)/login/page.tsx
+client/src/app/(auth)/register/page.tsx
+client/src/app/admin/layout.tsx
+client/src/app/cart/page.tsx
+client/src/app/checkout/page.tsx
+client/src/app/globals.css
+client/src/app/layout.tsx
+client/src/app/menu/page.tsx
+client/src/app/page.tsx
+client/src/components/footer.tsx
+client/src/components/landing/best-sellers-section.tsx
+client/src/components/landing/cta-section.tsx
+client/src/components/landing/features-section.tsx
+client/src/components/landing/hero-section.tsx
+client/src/components/landing/offers-section.tsx
+client/src/components/landing/testimonials-section.tsx
+client/src/components/navbar.tsx

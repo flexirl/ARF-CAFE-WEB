@@ -4,6 +4,7 @@ import { BestSellersSection } from "@/components/landing/best-sellers-section";
 import { OffersSection } from "@/components/landing/offers-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { CtaSection } from "@/components/landing/cta-section";
+import {AboutUs} from "@/components/landing/about";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <BestSellersSection />
       <OffersSection />
       <TestimonialsSection />
+      <AboutUs/>
       <CtaSection />
     </>
   );

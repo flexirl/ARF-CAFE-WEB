@@ -31,11 +31,11 @@ export function TestimonialsSection() {
     <section className="py-24 relative bg-secondary/50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16 max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Loved by <span className="text-gradient">KIITians</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display mb-4">
+            Loved by <span className="text-[#d8232a]">KIITians</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Don&apos;t just take our word for it. Here&apos;s what your peers have to say about Kravings.
+            THEY CAME. THEY CRAVED. THEY CAME BACK. HERE’S WHY.
           </p>
         </div>
 
