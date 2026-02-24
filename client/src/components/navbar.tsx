@@ -46,8 +46,10 @@ export function Navbar() {
         { href: "/admin", label: "Dashboard" },
       ]
     : [
+        { href: "/", label: "Home" },
         { href: "/menu", label: "Menu" },
-        { href: "/orders", label: "Orders" },
+        { href: "/#offers", label: "Offers" },
+        { href: "#contact", label: "Contact" },
       ]
 
   const mobileNavItems = isAdmin
@@ -56,9 +58,10 @@ export function Navbar() {
         { href: "/admin", label: "Dashboard" },
       ]
     : [
+        { href: "/", label: "Home" },
         { href: "/menu", label: "Menu" },
+        { href: "/#offers", label: "Offers" },
         { href: "/orders", label: "My Orders" },
-        { href: "/cart", label: "Cart" },
       ]
 
   return (
@@ -126,7 +129,14 @@ export function Navbar() {
         </Sheet>
 
         {/* Right Side */}
-        <div className="flex flex-1 items-center justify-end gap-2">
+        <div className="flex flex-1 items-center justify-end gap-2 md:gap-4">
+          {/* Order Now Button (Desktop) */}
+          {!isAdmin && (
+            <Button size="sm" asChild className="hidden md:flex bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg glow-orange transition-all font-semibold">
+              <Link href="/menu">Order Now</Link>
+            </Button>
+          )}
+
           {/* Cart - hidden for admin */}
           {!isAdmin && (
             <Link href="/cart">
