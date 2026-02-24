@@ -8,7 +8,7 @@ import {AboutUs} from "@/components/landing/about";
 
 export default function Home() {
   return (
-    <>
+    <div className="overflow-x-hidden w-full flex flex-col">
       <HeroSection />
       <FeaturesSection />
       <BestSellersSection />
@@ -16,6 +16,6 @@ export default function Home() {
       <TestimonialsSection />
       <AboutUs/>
       <CtaSection />
-    </>
+    </div>
   );
 }

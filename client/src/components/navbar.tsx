@@ -71,7 +71,7 @@ export function Navbar() {
     <>
       <StoreBanner isStoreOpen={isStoreOpen} storeOpensAt={storeOpensAt} />
 
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
+      <nav className="sticky top-0 z-50 w-full bg-background/90 backdrop-blur-md border-b border-border shadow-sm">
         <div className="container mx-auto flex items-center justify-between h-16 px-4 relative">
 
           {/* LEFT: Hamburger */}

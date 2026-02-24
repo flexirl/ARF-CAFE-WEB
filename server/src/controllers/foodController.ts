@@ -57,6 +57,7 @@ export const createFood = async (req: Request, res: Response) => {
     category: Joi.string().required(),
     image: Joi.string().required(),
     preparationTime: Joi.number(),
+    isVeg: Joi.boolean(),
   });
 
   const { error } = schema.validate(req.body);

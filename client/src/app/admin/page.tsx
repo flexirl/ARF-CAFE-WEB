@@ -46,6 +46,7 @@ import {
   X,
   Eye, EyeOff,
   Tag,
+  Edit2,
 } from "lucide-react"
 
 interface Food {
@@ -56,7 +57,7 @@ interface Food {
   category: string
   image: string
   availability: boolean
-  rating: number
+  isVeg?: boolean
   preparationTime?: number
 }
 
@@ -71,6 +72,7 @@ interface Order {
   paymentMethod: string
   createdAt: string
   userId?: { name: string; email: string }
+  deliveryAddress?: string
 }
 
 interface Stats {
@@ -96,9 +98,10 @@ export default function AdminDashboard() {
   const [foods, setFoods] = useState<Food[]>([])
   const [foodsLoading, setFoodsLoading] = useState(true)
 
-  // Add food form
+  // Add / Edit food form
   const [showAddForm, setShowAddForm] = useState(false)
   const [addLoading, setAddLoading] = useState(false)
+  const [editFoodId, setEditFoodId] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState("")
   const [newFood, setNewFood] = useState({
@@ -107,6 +110,7 @@ export default function AdminDashboard() {
     price: "",
     category: "",
     preparationTime: "",
+    isVeg: "true",
   })
 
   // Orders
@@ -219,45 +223,79 @@ export default function AdminDashboard() {
 
   const handleAddFood = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!imageFile) {
+    if (!imageFile && !editFoodId) {
       toast.error("Please select an image")
       return
     }
 
     setAddLoading(true)
     try {
-      // Upload image first
-      const formData = new FormData()
-      formData.append("image", imageFile)
-      const { data: uploadData } = await api.post("/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+      let imageUrl = imagePreview; // Default to existing preview if no new file is uploaded
+      
+      // Upload new image if selected
+      if (imageFile) {
+        const formData = new FormData()
+        formData.append("image", imageFile)
+        const { data: uploadData } = await api.post("/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        imageUrl = uploadData.url;
+      }
 
-      // Create food
-      const { data: food } = await api.post("/foods", {
+      const payload = {
         name: newFood.name,
         description: newFood.description,
         price: parseFloat(newFood.price),
         category: newFood.category,
-        image: uploadData.url,
+        image: imageUrl,
+        isVeg: newFood.isVeg === "true",
         preparationTime: newFood.preparationTime ? parseInt(newFood.preparationTime) : undefined,
-      })
+      };
 
-      setFoods((prev) => [food, ...prev])
-      setNewFood({ name: "", description: "", price: "", category: "", preparationTime: "" })
+      if (editFoodId) {
+        // Edit Existing
+        const { data: updatedFood } = await api.put(`/foods/${editFoodId}`, payload)
+        setFoods((prev) => prev.map(f => f._id === editFoodId ? updatedFood : f))
+        toast.success("Food item updated!")
+      } else {
+        // Create New
+        const { data: food } = await api.post("/foods", payload)
+        setFoods((prev) => [food, ...prev])
+        toast.success("Food item added!")
+        
+        // Refresh stats
+        const { data: newStats } = await api.get("/admin/stats")
+        setStats(newStats)
+      }
+
+      setNewFood({ name: "", description: "", price: "", category: "", preparationTime: "", isVeg: "true" })
       setImageFile(null)
       setImagePreview("")
+      setEditFoodId(null)
       setShowAddForm(false)
-      toast.success("Food item added!")
-      // Refresh stats
-      const { data: newStats } = await api.get("/admin/stats")
-      setStats(newStats)
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ message?: string }>
       toast.error(axiosError.response?.data?.message || "Failed to add food item")
     } finally {
       setAddLoading(false)
     }
+  }
+
+  const handleEditClick = (food: Food) => {
+    setEditFoodId(food._id)
+    setNewFood({
+      name: food.name,
+      description: food.description,
+      price: food.price.toString(),
+      category: food.category,
+      preparationTime: food.preparationTime?.toString() || "",
+      isVeg: food.isVeg !== false ? "true" : "false",
+    })
+    setImagePreview(food.image)
+    setShowAddForm(true)
+    
+    // Scroll to top where the form is
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleDeleteFood = async (id: string) => {
@@ -494,7 +532,17 @@ export default function AdminDashboard() {
               <p className="text-muted-foreground text-sm mt-1">{foods.length} items in menu</p>
             </div>
             <Button
-              onClick={() => setShowAddForm(!showAddForm)}
+              onClick={() => {
+                if (showAddForm) {
+                  setShowAddForm(false)
+                  setEditFoodId(null)
+                  setNewFood({ name: "", description: "", price: "", category: "", preparationTime: "", isVeg: "true" })
+                  setImageFile(null)
+                  setImagePreview("")
+                } else {
+                  setShowAddForm(true)
+                }
+              }}
               className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
             >
               {showAddForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -565,6 +613,17 @@ export default function AdminDashboard() {
                       />
                     </div>
                     <div className="space-y-2">
+                       <Label className="text-sm">Type</Label>
+                       <select
+                         value={newFood.isVeg}
+                         onChange={(e) => setNewFood({ ...newFood, isVeg: e.target.value })}
+                         className="w-full h-10 rounded-xl bg-secondary border-border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                       >
+                         <option value="true">Veg</option>
+                         <option value="false">Non-Veg</option>
+                       </select>
+                    </div>
+                    <div className="space-y-2">
                       <Label className="text-sm">Image</Label>
                       <label className="flex items-center gap-2 h-10 px-3 rounded-xl bg-secondary border border-border cursor-pointer hover:border-primary/30 transition-colors">
                         <ImagePlus className="h-4 w-4 text-muted-foreground" />
@@ -594,8 +653,8 @@ export default function AdminDashboard() {
                     disabled={addLoading}
                     className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
-                    {addLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                    Add Food Item
+                    {addLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : editFoodId ? <Edit2 className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+                    {editFoodId ? "Update Food Item" : "Add Food Item"}
                   </Button>
                 </form>
               </CardContent>
@@ -638,8 +697,12 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1.5 bg-secondary px-2.5 py-1 rounded-lg text-primary font-medium border border-border">{food.category}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{food.description}</p>
+                          <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium border border-border ${food.isVeg !== false ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                            <div className={`w-2 h-2 rounded-full ${food.isVeg !== false ? 'bg-green-500' : 'bg-red-500'}`} />
+                            {food.isVeg !== false ? 'Veg' : 'Non-Veg'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{food.description}</p>
                   </div>
                   <span className="text-sm font-bold text-primary flex-shrink-0">₹{food.price}</span>
                   <div className="flex gap-2 flex-shrink-0">
@@ -655,8 +718,18 @@ export default function AdminDashboard() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
+                      className="h-8 w-8 rounded-lg text-blue-500 hover:text-blue-400 hover:bg-blue-500/10"
+                      onClick={() => handleEditClick(food)}
+                      title="Edit food"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => handleDeleteFood(food._id)}
+                      title="Delete food"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -716,6 +789,9 @@ export default function AdminDashboard() {
                           )}
                           {order.customerPhone && (
                             <span className="text-xs text-muted-foreground">📞 {order.customerPhone}</span>
+                          )}
+                          {order.deliveryAddress && (
+                            <span className="text-xs text-muted-foreground mr-2">📍 {order.deliveryAddress}</span>
                           )}
                           <span className={`text-xs px-2 py-0.5 rounded-lg ${
                             order.paymentMethod === "cod"

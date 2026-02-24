@@ -9,6 +9,7 @@ export interface IFood extends Document {
   availability: boolean;
   preparationTime?: number;
   rating: number;
+  isVeg: boolean;
   createdAt: Date;
 }
 
@@ -21,6 +22,7 @@ const FoodSchema: Schema = new Schema({
   availability: { type: Boolean, default: true },
   preparationTime: { type: Number },
   rating: { type: Number, default: 0 },
+  isVeg: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
 

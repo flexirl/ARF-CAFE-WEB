@@ -14,9 +14,9 @@ interface Food {
   price: number
   category: string
   image: string
-  rating: number
   availability: boolean
   preparationTime?: number
+  isVeg?: boolean
 }
 
 export function FoodCard({ food }: { food: Food }) {
@@ -34,9 +34,7 @@ export function FoodCard({ food }: { food: Food }) {
           fill
           className={`object-cover transition-transform duration-500 ${food.availability ? "group-hover:scale-110" : ""}`}
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/90 to-transparent" />
-
+        
         {/* Out of Stock Overlay */}
         {!food.availability && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px]">
@@ -46,15 +44,14 @@ export function FoodCard({ food }: { food: Food }) {
           </div>
         )}
 
-        {/* Rating badge */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 glass rounded-full px-2.5 py-1">
-          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-          <span className="text-xs font-semibold">{food.rating}</span>
+        {/* Veg/Non-veg dot */}
+        <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm p-1 rounded-sm shadow-sm border border-border">
+          <div className={`w-3 h-3 rounded-full ${food.isVeg !== false ? 'bg-green-500' : 'bg-red-500'}`} />
         </div>
 
         {/* Prep time badge */}
         {food.preparationTime && (
-          <div className="absolute bottom-3 left-3 flex items-center gap-1 glass rounded-full px-2.5 py-1">
+          <div className="absolute top-3 right-3 flex items-center gap-1 glass rounded-full px-2.5 py-1">
             <Clock className="w-3 h-3 text-primary" />
             <span className="text-xs text-muted-foreground">{food.preparationTime}m</span>
           </div>
