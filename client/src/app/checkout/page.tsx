@@ -172,7 +172,7 @@ export default function CheckoutPage() {
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
-        name: "KRAVINGS BY ARF CAFE",
+        name: "TACOS MY GUEY",
         description: "Food Order Payment",
         order_id: data.orderId,
         handler: async (response: RazorpayResponse) => {

@@ -59,7 +59,7 @@ export default function RegisterPage() {
           <ChefHat className="h-6 w-6 text-primary" />
         </div>
         <h1 className="text-2xl font-bold">Create account</h1>
-        <p className="text-sm text-muted-foreground">Join KRAVINGS for exclusive perks</p>
+        <p className="text-sm text-muted-foreground">Join Kravings for ghar jaisa khana and exclusive perks</p>
       </div>
 
       <div className="flex justify-center">
@@ -83,7 +83,7 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name" className="text-sm">Full Name</Label>
-          <Input id="name" placeholder="John Doe" required value={name} onChange={(e) => setName(e.target.value)} className="h-11 rounded-xl bg-secondary border-border focus:border-primary/50" />
+          <Input id="name" placeholder="your name" required value={name} onChange={(e) => setName(e.target.value)} className="h-11 rounded-xl bg-secondary border-border focus:border-primary/50" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm">Email</Label>

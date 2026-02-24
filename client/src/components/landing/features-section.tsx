@@ -28,11 +28,11 @@ export function FeaturesSection() {
     <section className="py-24 relative bg-secondary/30">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16 max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Why People <span className="text-gradient">Choose Us</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display mb-4">
+            Why People <span className="text-[#D91729]">Choose Us</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            We built Kravings by ARF Cafe specifically to solve the food problems we faced ourselves.
+            We built Kravings by ARF,<br/> specifically to solve the food problems we faced ourselves.
           </p>
         </div>
         
@@ -48,7 +48,7 @@ export function FeaturesSection() {
               <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary transition-all duration-300 shadow-sm">
                 <f.icon className="h-7 w-7" strokeWidth={1.5} />
               </div>
-              <h3 className="text-xl font-bold mb-3">{f.title}</h3>
+              <h3 className="text-xl font-display mb-3">{f.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
             </div>
           ))}

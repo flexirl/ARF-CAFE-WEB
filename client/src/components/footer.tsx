@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { ChefHat, MapPin, Phone, Clock, Instagram, Facebook, Twitter } from "lucide-react";
-
+import { Galindo } from "next/font/google";
+  const galindo = Galindo({
+  subsets: ["latin"],
+  weight: "400",
+});
 export function Footer() {
   return (
     <footer className="bg-card border-t border-border pt-16 pb-8">
@@ -13,8 +17,7 @@ export function Footer() {
                 <ChefHat className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="flex flex-col justify-center">
-                <span className="font-bold text-lg leading-none tracking-tight">KRAVINGS</span>
-                <span className="text-primary text-[0.65rem] font-bold tracking-widest leading-none mt-0.5">BY ARF CAFE</span>
+                <span className={`${galindo.className} text-xl leading-none tracking-wide text-primary`}>KRAVINGS <br />by ARF</span>
               </div>
             </Link>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs">
@@ -35,18 +38,18 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+            <h3 className="font-display text-xl mb-4">Quick Links</h3>
             <ul className="space-y-3">
               <li><Link href="/" className="text-muted-foreground hover:text-primary transition-colors text-sm">Home</Link></li>
               <li><Link href="/menu" className="text-muted-foreground hover:text-primary transition-colors text-sm">Our Menu</Link></li>
-              <li><Link href="/#offers" className="text-muted-foreground hover:text-primary transition-colors text-sm">Student Offers</Link></li>
+              <li><Link href="/#offers" className="text-muted-foreground hover:text-primary transition-colors text-sm">Offers</Link></li>
               <li><Link href="/track-order" className="text-muted-foreground hover:text-primary transition-colors text-sm">Track Order</Link></li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Legal</h3>
+            <h3 className="font-display text-xl mb-4">Legal</h3>
             <ul className="space-y-3">
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Privacy Policy</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Terms of Service</Link></li>
@@ -56,11 +59,11 @@ export function Footer() {
 
           {/* Contact */}
           <div id="contact">
-            <h3 className="font-bold text-lg mb-4">Contact Us</h3>
+            <h3 className="font-display text-xl mb-4">Contact Us</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm text-muted-foreground">Near KIIT University, Patia, Bhubaneswar, Odisha 751024</span>
+                <span className="text-sm text-muted-foreground">Your Neighborhood - Near KIIT University, Patia, Bhubaneswar, Odisha 751024</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
@@ -68,7 +71,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-primary shrink-0" />
-                <span className="text-sm text-muted-foreground">11:00 AM – 1:00 AM (Daily)</span>
+                <span className="text-sm text-muted-foreground">12:00 PM – 1:00 AM (Daily)</span>
               </li>
             </ul>
           </div>
@@ -76,10 +79,11 @@ export function Footer() {
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Kravings by ARF Cafe. All rights reserved.
+            © {new Date().getFullYear()} Kravings by ARF. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            Made with <span className="text-red-500">♥</span> for KIITians
+            Made with <span className="text-red-500">♥</span> for kiitians
+             <a href="https://www.flexirl.com">  by Flexirl.com</a> 
           </p>
         </div>
       </div>

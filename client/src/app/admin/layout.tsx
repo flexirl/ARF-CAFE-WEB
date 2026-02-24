@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div>
               <p className="text-sm font-semibold">Admin Panel</p>
-              <p className="text-[10px] text-muted-foreground">KRAVINGS BY ARF CAFE</p>
+              <p className="text-[10px] text-muted-foreground">TACOS MY GUEY</p>
             </div>
           </div>
         </div>

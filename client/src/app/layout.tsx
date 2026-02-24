@@ -1,24 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Bebas_Neue } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+
+import { Galindo } from "next/font/google";
+
+const galindo = Galindo({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-galindo",
+});
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-const outfit = Outfit({
+const bebneue = Bebas_Neue({
+  weight: "400",
   subsets: ["latin"],
-  variable: "--font-heading",
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
-  title: "KRAVINGS by ARF CAFE — Premium Cloud Kitchen",
+  title: "Kravings by ARF — Cloud Kitchen delevering affordable food to KIIT students",
   description:
-    "Gourmet meals delivered hot and fresh. Curated menus, premium ingredients, lightning-fast delivery.",
+    "Authentic Mexican flavors, made fresh every day. Order your favorite tacos now!",
 };
 
 export default function RootLayout({
@@ -27,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${outfit.variable} min-h-screen bg-background font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${bebneue.variable}  ${galindo.variable} min-h-screen bg-background font-sans antialiased`}>
         <Providers>
           <Navbar />
           <main className="flex-1">{children}</main>

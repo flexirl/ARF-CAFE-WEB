@@ -69,7 +69,7 @@ export default function MenuPage() {
               </p>
             </div>
 
-            <div className="relative w-full md:w-80">
+            <div className="relative w-full lg:top-8 md:w-80">
               <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search dishes..."
