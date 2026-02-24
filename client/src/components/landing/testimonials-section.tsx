@@ -1,5 +1,4 @@
 import { Star } from "lucide-react";
-import Image from "next/image";
 
 // Mock Testimonials
 const TESTIMONIALS = [
@@ -59,13 +58,8 @@ export function TestimonialsSection() {
               </p>
               
               <div className="flex items-center gap-4 mt-auto">
-                <div className="h-12 w-12 rounded-full overflow-hidden bg-secondary border border-border">
-                  <Image 
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${t.avatarId}`} 
-                    alt={t.name}
-                    width={48}
-                    height={48}
-                  />
+                <div className="h-12 w-12 rounded-full flex items-center justify-center bg-primary/10 text-primary border border-primary/20 font-display text-xl">
+                  {t.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <h4 className="font-bold text-foreground text-sm">{t.name}</h4>
