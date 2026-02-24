@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import cateringFood from "@/assets/catering-food.webp";
+import Image from "next/image";
 
 const CateringSection = () => {
   return (
@@ -13,7 +13,7 @@ const CateringSection = () => {
           >
             <h2 className="text-5xl md:text-6xl font-display text-tmg-cream">BIG EVENT?</h2>
             <h3 className="text-3xl md:text-4xl font-display text-primary mt-2">
-              WE'VE GOT YOU, GUEY.
+              WE&apos;VE GOT YOU, GUEY.
             </h3>
             <p className="text-muted-foreground mt-4 leading-relaxed">
               Order catering straight from the kitchen that knows how to party. Tacos My Guey style.
@@ -35,9 +35,11 @@ const CateringSection = () => {
             viewport={{ once: true }}
             className="rounded-lg overflow-hidden shadow-xl"
           >
-            <img
-              src="catering-food-900.WEBP"
+            <Image
+              src="/catering-food-900.WEBP"
               alt="Catering food spread from Tacos My Guey"
+              width={900}
+              height={600}
               className="w-full h-full object-cover"
             />
           </motion.div>

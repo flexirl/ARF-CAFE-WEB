@@ -48,9 +48,12 @@ export function Navbar() {
   // Cart bounce animation
   useEffect(() => {
     if (cartCount > 0) {
-      setAnimateCart(true);
-      const timer = setTimeout(() => setAnimateCart(false), 400);
-      return () => clearTimeout(timer);
+      const timer1 = setTimeout(() => setAnimateCart(true), 0);
+      const timer2 = setTimeout(() => setAnimateCart(false), 400);
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
     }
   }, [cartCount]);
 
