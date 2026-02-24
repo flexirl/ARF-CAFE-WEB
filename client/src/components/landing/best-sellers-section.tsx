@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { Plus } from "lucide-react";
-import { useCart } from "@/context/cart-context";
+import { useRouter } from "next/navigation";
 
 interface Product {
   _id: string;
@@ -20,7 +19,8 @@ const products: Product[] = [
     _id: "p1",
     image: "/biryanicoke.png",
     name: "Biryani Coke Combo",
-    description: "Aromatic chicken biryani served with chilled Coke and creamy raita.",
+    description:
+      "Aromatic chicken biryani served with chilled Coke and creamy raita.",
     price: 199,
     badgeColor: "green",
     badgeText: "Student Favorite",
@@ -29,7 +29,8 @@ const products: Product[] = [
     _id: "p2",
     image: "/aalocurd.png",
     name: "Two Paratha with Curd",
-    description: "Golden, crispy parathas paired with fresh, cool homemade curd.",
+    description:
+      "Golden, crispy parathas paired with fresh, cool homemade curd.",
     price: 99,
     badgeColor: "yellow",
     badgeText: "Top Rated",
@@ -38,7 +39,8 @@ const products: Product[] = [
     _id: "p3",
     image: "/friedricecombo1.png",
     name: "Fried Rice with Chicken Chilli/Paneer Chilli",
-    description: "Flavorful fried rice served with spicy chicken or paneer chilli.",
+    description:
+      "Flavorful fried rice served with spicy chicken or paneer chilli.",
     price: 179,
     badgeColor: "red",
     badgeText: "Best Seller",
@@ -77,15 +79,13 @@ const StarBadge = ({
   );
 };
 
-const ProductCard = ({
-  product,
-  onAdd,
-  isAdded,
-}: {
-  product: Product;
-  onAdd: () => void;
-  isAdded: boolean;
-}) => {
+const ProductCard = ({ product }: { product: Product }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/menu?category=combos");
+  };
+
   return (
     <div className="flex flex-col items-center text-center max-w-[340px]">
       <div className="relative w-full mb-4">
@@ -98,16 +98,12 @@ const ProductCard = ({
             className="w-full h-[450px] object-cover rounded-xl transition-transform duration-500 hover:scale-105"
           />
 
-          {/* Add Button — UI SAME */}
+          {/* Plus Button — LEFT SIDE */}
           <button
-            onClick={onAdd}
-            className={`absolute bottom-1 right-3 h-10 w-10 rounded-full flex items-center justify-center shadow-lg transition-all ${
-              isAdded
-                ? "bg-green-500 text-white"
-                : "bg-primary text-primary-foreground hover:scale-105"
-            }`}
+            onClick={handleClick}
+            className="absolute bottom-3 left-3 h-10 w-10 rounded-full flex items-center justify-center shadow-lg bg-primary text-primary-foreground hover:scale-105 transition-all duration-300"
           >
-            {isAdded ? "✓" : <Plus className="h-5 w-5" />}
+            <Plus className="h-5 w-5" />
           </button>
         </div>
 
@@ -126,29 +122,9 @@ const ProductCard = ({
 };
 
 export function BestSellersSection() {
-  const { addToCart } = useCart();
-  const [addedItems, setAddedItems] = useState<Record<string, boolean>>({});
-
-  const handleAddToCart = (item: Product) => {
-    addToCart({
-      foodId: item._id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image,
-    });
-
-    setAddedItems((prev) => ({ ...prev, [item._id]: true }));
-
-    setTimeout(() => {
-      setAddedItems((prev) => ({ ...prev, [item._id]: false }));
-    }, 2000);
-  };
-
   return (
     <section className="w-full bg-background py-16 md:py-24 px-6">
       <div className="max-w-6xl mx-auto flex flex-col items-center">
-
         <h2 className="font-display text-3xl md:text-[42px] tracking-wide text-[#d8232a] text-center leading-tight mb-2">
           WHAT EVERYONE'S KRAVING ABOUT
         </h2>
@@ -160,11 +136,7 @@ export function BestSellersSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-12 w-full mb-12 md:mb-16">
           {products.map((product) => (
             <div key={product._id} className="flex justify-center">
-              <ProductCard
-                product={product}
-                onAdd={() => handleAddToCart(product)}
-                isAdded={!!addedItems[product._id]}
-              />
+              <ProductCard product={product} />
             </div>
           ))}
         </div>
