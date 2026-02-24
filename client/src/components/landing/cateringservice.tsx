@@ -36,7 +36,7 @@ const CateringSection = () => {
             className="rounded-lg overflow-hidden shadow-xl"
           >
             <img
-              src={cateringFood}
+              src="catering-food-900.WEBP"
               alt="Catering food spread from Tacos My Guey"
               className="w-full h-full object-cover"
             />
