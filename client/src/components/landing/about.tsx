@@ -205,6 +205,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 
 /* ================== GLOBAL VIDEO CONTROL ================== */
@@ -326,9 +327,11 @@ export function AboutUs() {
 
                 {/* IMAGE MODE */}
                 {mediaType === "image" && (
-                  <img
+                  <Image
                     src="/resturant.png"
                     alt="Addis Royal Food"
+                    width={800}
+                    height={650}
                     className="w-full h-[650px] object-cover rounded-3xl"
                   />
                 )}
@@ -476,11 +479,12 @@ export function AboutUs() {
                 <div className="absolute inset-0 rounded-full border-2 sm:border-[3px] border-green-600/30 scale-[1.06] rotate-12" />
 
                 <div className="relative w-full h-full rounded-full overflow-hidden shadow-2xl">
-                  <img
+                  <Image
                     src={chef.image}
                     alt={chef.name}
+                    width={320}
+                    height={320}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    loading="lazy"
                   />
                 </div>
 

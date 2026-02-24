@@ -126,7 +126,7 @@ export function BestSellersSection() {
     <section className="w-full bg-background py-16 md:py-24 px-6">
       <div className="max-w-6xl mx-auto flex flex-col items-center">
         <h2 className="font-display text-3xl md:text-[42px] tracking-wide text-[#d8232a] text-center leading-tight mb-2">
-          WHAT EVERYONE'S KRAVING ABOUT
+          WHAT EVERYONE&apos;S KRAVING ABOUT
         </h2>
 
         <p className="font-display text-sm md:text-base tracking-[0.25em] text-muted-foreground uppercase mb-12 md:mb-16">

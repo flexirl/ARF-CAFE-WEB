@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/context/cart-context"
 import { useAuth } from "@/context/auth-context"
-import { Star, Clock, Plus } from "lucide-react"
+import { Clock, Plus } from "lucide-react"
 import Image from "next/image"
 
 interface Food {
