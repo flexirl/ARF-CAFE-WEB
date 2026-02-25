@@ -3,11 +3,25 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
-interface User {
+export interface Address {
+  _id: string
+  type: 'home' | 'work' | 'other'
+  street: string
+  city: string
+  state: string
+  postalCode: string
+  country: string
+  isDefault: boolean
+  phoneNumber: string
+}
+
+export interface User {
   _id: string
   name: string
   email: string
+  phone?: string
   role: string
+  addresses?: Address[]
   accessToken: string
 }
 
@@ -15,6 +29,7 @@ interface AuthContextType {
   user: User | null
   login: (userData: User) => void
   logout: () => void
+  updateUser: (userData: Partial<User>) => void
   loading: boolean
 }
 
@@ -46,6 +61,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("accessToken", userData.accessToken)
   }
 
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData }
+      setUser(updatedUser)
+      localStorage.setItem("user", JSON.stringify(updatedUser))
+    }
+  }
+
   const logout = () => {
     setUser(null)
     localStorage.removeItem("user")
@@ -54,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   )

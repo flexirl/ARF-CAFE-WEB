@@ -1,13 +1,26 @@
-# Tacos My Guey Design System Implementation
+# Profile CSS Update Plan
 
-## Completed:
+## Task: Update profile CSS files to use design system CSS variables
 
-- [x] 1. Update client/src/app/globals.css - Replace entire color palette with TMG colors
-- [x] 2. Update client/src/app/layout.tsx - Update fonts to Bebas Neue and Inter, update metadata
-- [x] 3. Update client/src/components/landing/hero-section.tsx - Update text to use TMG branding
-- [x] 4. Update client/src/components/navbar.tsx - Update branding from KRAVINGS to TACOS MY GUEY
-- [x] 5. Update client/src/components/footer.tsx - Update branding and contact info
-- [x] 6. Update client/src/app/admin/layout.tsx - Update admin panel branding
-- [x] 7. Update client/src/app/checkout/page.tsx - Update Razorpay payment name
-- [x] 8. Update client/src/app/(auth)/login/page.tsx - Update branding
-- [x] 9. Update client/src/app/(auth)/register/page.tsx - Update branding
+### Files Updated:
+
+- [x] client/src/app/profile/profile.module.css
+- [x] client/src/components/profile-info-form.module.css
+- [x] client/src/components/address-management.module.css
+- [x] client/src/components/change-password-form.module.css
+
+### CSS Variables Mapping Applied:
+
+- `#ff6b35` (orange) → `var(--color-primary)` (TMG Red)
+- `#e55a24` → `hsl(0, 72%, 35%)` (darkened primary)
+- `#333` → `var(--color-foreground)`
+- `#666` → `var(--color-muted-foreground)`
+- `#999` → `var(--color-muted-foreground)`
+- `#ddd` → `var(--color-border)`
+- `#e0e0e0` → `var(--color-border)`
+- `#f9f9f9` → `var(--color-secondary)`
+- `#f5f5f5` → `var(--color-muted)`
+- white → `var(--color-card)`
+- `#ccc` → `var(--color-muted-foreground)`
+
+### Status: COMPLETED ✅
