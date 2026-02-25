@@ -12,8 +12,17 @@ export default function AddressManagement() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    type: 'home' as const,
+  const [formData, setFormData] = useState<{
+    type: 'home' | 'work' | 'other';
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    phoneNumber: string;
+    isDefault: boolean;
+  }>({
+    type: 'home',
     street: '',
     city: '',
     state: '',
@@ -32,10 +41,11 @@ export default function AddressManagement() {
       setLoading(true)
       const data = await profileAPI.getAddresses()
       setAddresses(data)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
       setMessage({
         type: 'error',
-        text: error.response?.data?.message || 'Failed to load addresses',
+        text: err.response?.data?.message || 'Failed to load addresses',
       })
     } finally {
       setLoading(false)
@@ -68,17 +78,18 @@ export default function AddressManagement() {
         text: editingId ? 'Address updated successfully!' : 'Address added successfully!',
       })
       resetForm()
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
       setMessage({
         type: 'error',
-        text: error.response?.data?.message || 'Failed to save address',
+        text: err.response?.data?.message || 'Failed to save address',
       })
     }
   }
 
   const handleEdit = (address: Address) => {
     setFormData({
-      type: address.type,
+      type: address.type as 'home' | 'work' | 'other',
       street: address.street,
       city: address.city,
       state: address.state,
@@ -99,10 +110,11 @@ export default function AddressManagement() {
       setAddresses(updatedAddresses)
       updateUser({ addresses: updatedAddresses })
       setMessage({ type: 'success', text: 'Address deleted successfully!' })
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
       setMessage({
         type: 'error',
-        text: error.response?.data?.message || 'Failed to delete address',
+        text: err.response?.data?.message || 'Failed to delete address',
       })
     }
   }
